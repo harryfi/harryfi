@@ -223,87 +223,107 @@
             </div>
             <div class="col-lg-6 col-sm-6 col-md-6">
                 <div class="pull-right">
-                    <label onclick="MenuLama();"><u>kembali ke menu sinkronisasi lama</u></label>
+                    <label onclick="MenuLama();" style="margin-right:20px;"><u>kembali ke menu sinkronisasi lama</u></label>
                     <button class="btn btn-primary" id="get_data" onclick="">Simpan</button>
                     <button class="btn btn-primary" id="get_data" onclick="$('#konfTarikData').modal('show'); setModalMode(2);">Ambil data dari Marketplace</button>
                 </div>
             </div>
         </div>
-    </div>
-    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-        <div class="col-lg-8 col-md-8 col-sm-8 col-xs-8">
-            <div id="divSearch2">
-                <div style="padding-bottom:15px;">
-                    <label style="font-size:15px;"></label>
-                </div>
-                <div class="row barang_table_section" style="padding-left:10px;">
-                    <div class="input-group col-lg-12 col-sm-12 col-md-12">
-                        <input id="search_barang2" type="text" class="form-control" placeholder="Pencarian">
-                        <span class="input-group-btn">
-                            <button type="button" id="search_barang_click2" class="btn btn-primary">
-                                <i class="fa fa-search"></i>
-                            </button>
-                        </span>
-                        <div class=" col-lg-5 col-sm-5 col-md-5 pull-right">
-                            <div class="text">
-                                <select class="form-control" id="TakeRecord" name="TakeRecord" required="required">
-                                    <option value="10" selected>10</option>
-                                    <option value="100">100</option>
-                                    <option value="200">200</option>
-                                    <option value="500">500</option>
-                                    <option value="1000">1000</option>
-                                </select>
+        <div class="barang_table_section">
+            <div class="col-lg-8 col-md-8 col-sm-8 col-xs-8">
+                <div id="divSearch2">
+                    <div class="row" style="padding-top:20px;">
+                        <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3" style="background-color: #ffe8e8;border:solid; width: 20px; height: 20px; margin-right: 15px; margin-left: 15px;"></div>
+                        <div><label style="font-size:15px;">adalah barang induk</label></div>                        
+                    </div>
+                    <div class="row barang_table_section" style="padding-left:10px;">
+                        <div class="input-group col-lg-12 col-sm-12 col-md-12">
+                            <input id="search_barang2" type="text" class="form-control" placeholder="Pencarian">
+                            <span class="input-group-btn">
+                                <button type="button" id="search_barang_click2" class="btn btn-primary">
+                                    <i class="fa fa-search"></i>
+                                </button>
+                            </span>
+                            <div class=" col-lg-5 col-sm-5 col-md-5 pull-right">
+                                <div class="text">
+                                    <select class="form-control" id="TakeRecord" name="TakeRecord" required="required">
+                                        <option value="10" selected>10</option>
+                                        <option value="100">100</option>
+                                        <option value="200">200</option>
+                                        <option value="500">500</option>
+                                        <option value="1000">1000</option>
+                                    </select>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    @*<div class="input-group col-lg-2 col-sm-2 col-md-2">
-                            <div class="input-group text">
-                                <select class="form-control" id="TakeRecord" name="TakeRecord" required="required">
-                                    <option value="10" selected>10</option>
-                                    <option value="100">100</option>
-                                    <option value="200">200</option>
-                                    <option value="500">500</option>
-                                    <option value="1000">1000</option>
-                                </select>
-                            </div>
-                        </div>*@
                 </div>
-            </div>
-            <div class="row" @*style="margin-top: 5px;*@>
-                <div id="lblPleasewait" class="text-center" style="display:none">
-                    <label>Proses sinkronisasi sedang berlangsung, Dimohon tunggu beberapa saat.</label>
-                </div>
-                <div id="loading_barang_tab" class="text-center" style="display: none">
-                    <img src="~/Content/Images/spinner.gif" width="100" />
-                </div>
-                <div class="col-sm-12 barang_table_section" id="table-sinkro-barang" style="overflow-y:scroll; height:930px;">
-                </div>
-            </div>
-            <div class="row" id="info_record" style="text-align:center;">
-                <br />
-                <label id="txtInfo" style="text-align:center"></label>
-                <br />
-                <label id="txtInfo2" style="text-align:center"></label>
-            </div>
-        </div>
-        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
-            <div id="divSearch" style="display:none;">
-                <div style="padding-bottom:15px;">
-                    <label style="font-size:15px;">Rekomendasi : Master Barang Master Online</label>
-                </div>
-                <div class="row barang_table_section" style="padding-left:10px;">
-                    <div class="input-group col-sm-8 col-md-8">
-                        <input id="search_barang" type="text" class="form-control" placeholder="Pencarian">
-                        <span class="input-group-btn">
-                            <button type="button" id="search_barang_click" class="btn btn-primary">
-                                <i class="fa fa-search"></i>
-                            </button>
-                        </span>
+                <div class="row" @*style="margin-top: 5px;*@>
+                    <div id="lblPleasewait" class="text-center" style="display:none">
+                        <label>Proses sinkronisasi sedang berlangsung, Dimohon tunggu beberapa saat.</label>
+                    </div>
+                    <div id="loading_barang_tab" class="text-center" style="display: none">
+                        <img src="~/Content/Images/spinner.gif" width="100" />
+                    </div>
+                    <div class="col-sm-12 barang_table_section" id="table-sinkro-barang" style="overflow-y:scroll; height:930px;">
                     </div>
                 </div>
+                <div class="row" id="info_record" style="text-align:center;">
+                    <br />
+                    <label id="txtInfo" style="text-align:center"></label>
+                    <br />
+                    <label id="txtInfo2" style="text-align:center"></label>
+                </div>
             </div>
-            <div id="form-rekomendasi">
+            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
+                <div id="divSearch" style="display:none;">
+                    <div style="padding-top: 20px">
+                        <label style="font-size:15px;">Rekomendasi : Master Barang Master Online</label>
+                    </div>
+                    <div class="row barang_table_section" style="padding-left:10px;">
+                        <div class="input-group col-sm-8 col-md-8">
+                            <input id="search_barang" type="text" class="form-control" placeholder="Pencarian">
+                            <span class="input-group-btn">
+                                <button type="button" id="search_barang_click" class="btn btn-primary">
+                                    <i class="fa fa-search"></i>
+                                </button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div id="form-rekomendasi">
 
+                </div>
+            </div>
+        </div>
+
+        <div class="row barang_editor_section" style="display: none;">
+            <div class="col-lg-12">
+                <div class="page-editor">
+                    <h2 class="editor-title">Barang</h2>
+                    <span class="title-accent"></span>
+                    <button id="close-editor-1" type="button" class="pull-right page-close">
+                        <span class="close-btn thick"></span>
+                    </button>
+                    @if (ViewData.ModelState.Any(x => x.Value.Errors.Any()))
+                    {
+                        foreach (var modelError in ViewData.ModelState.SelectMany(x => x.Value.Errors))
+                        {
+                            <div class="alert alert-danger">
+                                <span class="message-error">@modelError.ErrorMessage</span>
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                        }
+                    }
+                    @using (Html.BeginForm("UploadSatuBarang", "Manage", FormMethod.Post, new { enctype = "multipart/form-data", id = "form-barang" }))
+                    {
+                        <div id="form-partial">
+                            @*@Html.Partial("FormBarangUploadsPartial")*@
+                        </div>
+                    }
+                </div>
             </div>
         </div>
     </div>
@@ -350,44 +370,6 @@
     </div>
 </div>
 
-<div class="modal fade" id="ModalCreateMaster" tabindex="-1" role="dialog" aria-labelledby="ModalCreateMasterLabel">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" id="ModalCreateMasterLabel">Buat Master Barang Baru</h4>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label class="control-label">Nama Barang</label>
-                    <div class="col-md-6 col-sm-6 col-xs-12">
-                        <input id="txtNama" class="form-control" />
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="control-label">Kategori Barang</label>
-                    <div class="col-md-6 col-sm-6 col-xs-12">
-                        <select id="KATEGORI" placeholder="Harap pilih" required="required"></select>
-                        <input id="txtKodeKat" style="display:none;" />
-                        <input id="txtNamaKat" style="display:none;" />
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="control-label">Merk Barang</label>
-                    <div class="col-md-6 col-sm-6 col-xs-12">
-                        <select id="MERK" placeholder="Harap pilih" required="required"></select>
-                        <input id="txtKodeMerk" style="display:none;" />
-                        <input id="txtNamaMerk" style="display:none;" />
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-success" onclick="">Ya</button>
-                <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
-            </div>
-        </div>
-    </div>
-</div>
 @section scripts{
     <script src="~/Content/selectize.js" type="text/javascript"></script>
     <script src="~/Content/build/js/selectivity-jquery.min.js" type="text/javascript"></script>
@@ -398,6 +380,58 @@
             window.location.href = "@Url.Action("master/uploadbarang", "Manage")";
 
         };
+
+        function Initialize() {
+            $('input[name="select_all"]').off('click').on('click',
+                function () {
+                    var attr = $(this).attr('checked');
+
+                    if (typeof attr !== typeof undefined && attr !== false) {
+                        $('input[name="data-1"]').removeAttr('checked');
+                        $('input[name="data-2"]').removeAttr('checked');
+                    } else {
+                        $('input[name="data-1"]').attr('checked', 'checked');
+                        $('input[name="data-2"]').attr('checked', 'checked');
+                    }
+                });
+
+            getKategori();
+            getMerk();
+
+            $("#Stf02_HJUAL").off('focus').focus(function () {
+                $(this).val(convertToAngka($(this).val()));
+            });
+
+            $("#Stf02_HJUAL").off('keydown').on('keydown',
+                function (e) {
+                    if ($.inArray(e.keyCode, [46, 8, 9, 27, 13, 110, 190]) !== -1 ||
+                        // Allow: Ctrl+A, Command+A
+                        (e.keyCode === 65 && (e.ctrlKey === true || e.metaKey === true)) ||
+                        // Allow: home, end, left, right, down, up
+                        (e.keyCode >= 35 && e.keyCode <= 40)) {
+                        // let it happen, don't do anything
+                        return;
+                    }
+                    // Ensure that it is a number and stop the keypress
+                    if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+                        e.preventDefault();
+                    }
+                });
+
+            $("#Stf02_HJUAL").off('change').on('change', function () {
+                if ($(this).val() == '') {
+                    $(this).val(0);
+                }
+                $(this).val(convertToAngka($(this).val()));
+
+                var $input = $(this).val();
+                var $rupiah = convertToRupiah($input);
+                $(this).val($rupiah);
+
+                //applyHargaPerMarket($rupiah);
+            });
+
+        }
         $(document).ready(function () {
             $('#search_barang').keypress(function (e) {
                 var key = e.which;
@@ -414,6 +448,24 @@
             $('#TakeRecord').change(function () {
                 //searchTablePesananSudahDibayar();
                 refreshTableBarangSinkro("1");
+            });
+
+            $('#search_barang2').keypress(function (e) {
+                var key = e.which;
+                if (key == 13)// the enter key code
+                {
+                    refreshTableBarangSinkro();
+                    return false;
+                }
+            });
+            $('#search_barang_click2').click(function () {
+                refreshTableBarangSinkro();
+            });
+            $('#close-editor-1').off('click').on('click', function () {
+                $('#close-editor-1')[0].disabled = true;
+                $('.barang_table_section').show();
+                $('.barang_editor_section').hide();
+                refreshTableBarangSinkro();
             });
         });
         function PromptCustomer() {
@@ -489,17 +541,20 @@
             });
         }
         function refreshTableBarangSinkro($pageAwal) {
-
+            currentBrg = "";
+            $('#divSearch').hide();
+            $('#form-rekomendasi').hide();
             var $setPage = "";
             if ($pageAwal != undefined) {
                 $setPage = $pageAwal;
             } else {
                 $setPage = $('#txt_last_page').val();
             }
-            var $link = '@Html.Raw(Url.Action("RefreshTableBarangSinkro", "Manage", new { take = "replaceLastTake", cust = "replaceCust", page = "replaceLastPage" }))';
+            var $link = '@Html.Raw(Url.Action("RefreshTableBarangSinkro", "Manage", new { search = "replaceLastSearch", take = "replaceLastTake", cust = "replaceCust", page = "replaceLastPage" }))';
             $link = $link.replace("replaceCust", encodeURIComponent($('#promptHiddenField').val()));
             $link = $link.replace("replaceLastPage", encodeURIComponent($setPage));
             $link = $link.replace("replaceLastTake", encodeURIComponent($('#TakeRecord').val()));
+            $link = $link.replace("replaceLastSearch", encodeURIComponent($('#search_barang2').val()));
 
             $.ajax({
                 type: "GET",
@@ -507,7 +562,7 @@
                 beforeSend: function () {
                     $('#table-sinkro-barang').hide();
                     $('#loading_barang_tab').show();
-                    $('#loading_uploadbarang_tab').show();
+                    //$('#loading_uploadbarang_tab').show();
                 },
                 success: function (response) {
                     $('#table-sinkro-barang').html(response);
@@ -656,6 +711,274 @@
                 $('#konfSyncAll').modal('hide');
             }
 
+        }
+
+
+        function editBarang() {
+            var link = '@Url.Action("EditBarangUpload", "Manage"@*, new { brg_mp = "replaceId" }*@)';
+            //link = link.replace("replaceId", idBarang);
+            link += '?recnum=' + encodeURIComponent(currentBrg) + '&cust=' + encodeURIComponent($('#promptHiddenField').val());
+            $.ajax({
+                type: "GET",
+                url: link,
+                beforeSend: function () {
+                    //$('#loading_spinner').show();
+                },
+                success: function (response) {
+                    //$('#table-upload-barang-partial').hide();
+
+                    $('.barang_table_section').hide();
+                    $('.barang_editor_section').show();
+                    $('#form-partial').html(response);
+                    $('#txtBrg').val($('#TempBrg_SELLER_SKU').val()).change();
+                    $('#txtBrgInduk').val($('#TempBrg_KODE_BRG_INDUK').val());
+                    initRequired();
+                    $('#close-editor-1')[0].disabled = false;
+                    /*$('#loading_uploadbarang_tab').hide();*/
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                    $('.barang_table_section').show();
+                    $('.barang_editor_section').hide();
+                    //$('#loading_uploadbarang_tab').hide();
+                }
+            });
+        }
+        function getKategori() {
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetKategoriBarang", "Manage")',
+                contentType: 'application/json',
+                cache: false,
+                success: function (data) {
+                    var listKategori = [];
+
+                    $.each(data,
+                        function (i, item) {
+                            listKategori[i] = {
+                                id: item.KODE,
+                                text: item.KET
+                            };
+                        });
+
+                    var kategoriSelect = $('#KATEGORI').selectize({
+                        valueField: 'id',
+                        searchField: 'text',
+                        options: listKategori,
+                        onChange: function (value) {
+                            $('#Stf02_Sort1').val(value);
+                            $('#Stf02_KET_SORT1').val($("#KATEGORI option:selected").text());
+                        }
+                    });
+
+                    kategoriSelect[0].selectize.setValue($('#Stf02_Sort1').val());
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
+
+        function getMerk() {
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetMerkBarang", "Manage")',
+                contentType: 'application/json',
+                cache: false,
+                success: function (data) {
+                    var listMerk = [];
+
+                    $.each(data,
+                        function (i, item) {
+                            listMerk[i] = {
+                                id: item.KODE,
+                                text: item.KET
+                            };
+                        });
+
+                    var merkSelect = $('#MERK').selectize({
+                        valueField: 'id',
+                        searchField: 'text',
+                        options: listMerk,
+                        onChange: function (value) {
+                            $('#Stf02_Sort2').val(value);
+                            $('#Stf02_KET_SORT2').val($("#MERK option:selected").text());
+                        }
+                    });
+
+                    merkSelect[0].selectize.setValue($('#Stf02_Sort2').val());
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
+
+        function AutoCompleteBrg() {
+            var link = '@Url.Action("AutoCompleteBrg", "Manage"@*, new { brg = "replaceId", brg_mp = "replaceBrgMp" }*@)';
+            //link = link.replace("replaceId", $('#txtBrg').val());
+            //link = link.replace("replaceBrgMp", $('#TempBrg_BRG_MP').val());
+            link += '?brg=' + encodeURIComponent($('#txtBrg').val()) + '&brg_mp=' + encodeURIComponent($('#TempBrg_BRG_MP').val()) + '&cust=' + encodeURIComponent($('#promptHiddenField').val());
+            $.ajax({
+                type: "GET",
+                url: link,
+                success: function (response) {
+                    if (response != null) {
+                        if (response.Errors == null) {
+                            setFormBrg(response);
+                            //$('#form-partial').html(response);
+                            //getFotoProduk();
+                            //if (response.Stf02.Sort1 != null) {
+                            //    document.getElementById('statBarang').innerText = ' Link dengan barang yang sudah ada';
+                            //} else {
+                            //    document.getElementById('statBarang').innerText = ' Create barang baru';
+                            //}
+                        } else {
+                            alert(response.Errors[0]);
+                        }
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        function setFormBrg(data) {
+            if (data != null) {
+                $('#Stf02_NAMA').val(data.NAMA);
+                $('#Stf02_NAMA2').val(data.NAMA2);
+                $('#Stf02_STN2').val(data.STN2);
+                $('#Stf02_MINI').val(data.MINI);
+                $('#Stf02_MAXI').val(data.MAXI);
+                if (data.Deskripsi != '') {
+                    $('#Stf02_Deskripsi').val(data.Deskripsi);
+                    CKEDITOR.instances['Stf02_Deskripsi'].setData(data.Deskripsi);
+                }
+                $('#Stf02_BERAT').val(data.BERAT);
+                $('#Stf02_PANJANG').val(data.PANJANG);
+                $('#Stf02_LEBAR').val(data.LEBAR);
+                $('#Stf02_TINGGI').val(data.TINGGI);
+                $('#Stf02_HJUAL').val(convertToRupiah(data.HJUAL));
+                $('#Stf02_BRG').val(data.BRG);
+                if (data.LINK_GAMBAR_1 != '')
+                    $('#hidden_url_gambar_1').val(data.LINK_GAMBAR_1);
+                if (data.LINK_GAMBAR_2 != '')
+                    $('#hidden_url_gambar_2').val(data.LINK_GAMBAR_2);
+                if (data.LINK_GAMBAR_3 != '')
+                    $('#hidden_url_gambar_3').val(data.LINK_GAMBAR_3);
+                if (data.LINK_GAMBAR_4 != '')
+                    $('#hidden_url_gambar_4').val(data.LINK_GAMBAR_4);
+                if (data.LINK_GAMBAR_5 != '')
+                    $('#hidden_url_gambar_5').val(data.LINK_GAMBAR_5);
+                getFotoProduk();
+                if (data.Sort1 != null) {
+                    //$('#KATEGORI')[0].selectize.setValue(data.Sort1, true);
+                    $('#Stf02_Sort1').val(data.Sort1);
+                    //$('#MERK')[0].selectize.setValue(data.Sort2, true);
+                    $('#Stf02_Sort2').val(data.Sort2);
+
+                }
+                //else {
+                //    document.getElementById('statBarang').innerText = 'Kode Barang belum ada\nBuat barang baru';
+                //}
+                if (data.ID > 0) {
+                    document.getElementById('statBarang').innerText = 'Kode Barang sudah ada dan akan\nDi-Link dengan barang ini.';
+                } else {
+                    document.getElementById('statBarang').innerText = 'Kode Barang belum ada\nBuat barang baru';
+                }
+                if ($("#TempBrg_KODE_BRG_INDUK").val() != '') {
+                    if (data.PART != null) {
+                        $('#txtBrgInduk').val(data.PART);
+                        $("#cmbVar").val('1').change();//brg varian
+                    }
+                //change by nurul 16/9/2020, brg multi sku
+                //} else if (data.TYPE == "3" ) {
+                } else if (data.TYPE == "3" || data.TYPE == "6") {
+                //end change by nurul 16/9/2020, brg multi sku
+                    $("#cmbVar").val('0').change();
+                } else if (data.TYPE == "4") {
+                    $("#cmbVar").val('2').change();
+                } else {//default barang varian
+                    $("#cmbVar").val('1').change();
+                }
+            }
+            if ($('#Stf02_Deskripsi').val().includes("extended description")) {
+                CKEDITOR.instances['Stf02_Deskripsi'].setReadOnly(true);
+                $('#extDescShopee').show();
+            }
+            else {
+                CKEDITOR.instances['Stf02_Deskripsi'].setReadOnly(false);
+                $('#extDescShopee').hide();
+            }
+            Initialize();
+        }
+
+        function getFotoProduk() {
+            if ($('#hidden_url_gambar_1').val() != "") {
+                $('#box_upload_1').css({
+                    'background-image': 'url("' + $('#hidden_url_gambar_1').val() + '")',
+                    'background-size': 'cover'
+                });
+                //$('#box_upload_1 span').hide();
+                //$('#btn_hapus_1').show();
+            } else {
+                $('#box_upload_1').css({
+                    'background-image': '',
+                });
+            }
+
+            if ($('#hidden_url_gambar_2').val() != "") {
+                $('#box_upload_2').css({
+                    'background-image': 'url("' + $('#hidden_url_gambar_2').val() + '")',
+                    'background-size': 'cover'
+                });
+                //$('#box_upload_2 span').hide();
+                //$('#btn_hapus_2').show();
+            } else {
+                $('#box_upload_2').css({
+                    'background-image': '',
+                });
+            }
+
+            if ($('#hidden_url_gambar_3').val() != "") {
+                $('#box_upload_3').css({
+                    'background-image': 'url("' + $('#hidden_url_gambar_3').val() + '")',
+                    'background-size': 'cover'
+                });
+                //$('#box_upload_3 span').hide();
+                //$('#btn_hapus_3').show();
+            } else {
+                $('#box_upload_3').css({
+                    'background-image': '',
+                });
+            }
+
+            if ($('#hidden_url_gambar_4').val() != "") {
+                $('#box_upload_4').css({
+                    'background-image': 'url("' + $('#hidden_url_gambar_4').val() + '")',
+                    'background-size': 'cover'
+                });
+                //$('#box_upload_2 span').hide();
+                //$('#btn_hapus_2').show();
+            } else {
+                $('#box_upload_4').css({
+                    'background-image': '',
+                });
+            }
+
+            if ($('#hidden_url_gambar_5').val() != "") {
+                $('#box_upload_5').css({
+                    'background-image': 'url("' + $('#hidden_url_gambar_5').val() + '")',
+                    'background-size': 'cover'
+                });
+                //$('#box_upload_3 span').hide();
+                //$('#btn_hapus_3').show();
+            } else {
+                $('#box_upload_5').css({
+                    'background-image': '',
+                });
+            }
         }
     </script>
 }
