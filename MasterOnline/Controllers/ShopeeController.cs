@@ -2985,7 +2985,7 @@ namespace MasterOnline.Controllers
             bool TokenExpired = false;
             if (!string.IsNullOrWhiteSpace(dataAPI.token_expired.ToString()))
             {
-                if (dataAPI.token_expired < DateTime.UtcNow.AddHours(7).AddMinutes(30))
+                if (dataAPI.token_expired < DateTime.UtcNow.AddHours(7).AddMinutes(15))
                 {
                     var cekInDB = ErasoftDbContext.ARF01.Where(m => m.CUST == dataAPI.no_cust).FirstOrDefault();
                     if (cekInDB != null)
@@ -2999,7 +2999,7 @@ namespace MasterOnline.Controllers
                             dataAPI.token_expired = cekInDB.TOKEN_EXPIRED.Value;
                             dataAPI.token = cekInDB.TOKEN;
 
-                            if (cekInDB.TOKEN_EXPIRED.Value.AddMinutes(-30) > DateTime.UtcNow.AddHours(7))
+                            if (cekInDB.TOKEN_EXPIRED.Value.AddMinutes(-15) > DateTime.UtcNow.AddHours(7))
                             {
                                 return dataAPI;
                             }
@@ -3136,9 +3136,10 @@ namespace MasterOnline.Controllers
                             REQUEST_ACTION = "Refresh Token Shopee V2", //ganti
                             REQUEST_DATETIME = milisBack,
                             REQUEST_ATTRIBUTE_1 = dataAPI.merchant_code,
+                            REQUEST_ATTRIBUTE_2 = myData,
                             REQUEST_STATUS = "Failed"
                         };
-                        currentLog.REQUEST_EXCEPTION = err;
+                        currentLog.REQUEST_EXCEPTION = (err == "" ? e.Message : err);
                         manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, dataAPI, currentLog);
                     }
                 }
@@ -3223,6 +3224,7 @@ namespace MasterOnline.Controllers
                                         REQUEST_ACTION = "Refresh Token Shopee V2", //ganti
                                         REQUEST_DATETIME = milisBack,
                                         REQUEST_ATTRIBUTE_1 = dataAPI.merchant_code,
+                                        REQUEST_ATTRIBUTE_2 = myData,
                                         REQUEST_STATUS = "Failed"
                                     };
                                     currentLog.REQUEST_EXCEPTION = responseFromServer;
@@ -3262,6 +3264,7 @@ namespace MasterOnline.Controllers
                                     REQUEST_ACTION = "Refresh Token Shopee V2", //ganti
                                     REQUEST_DATETIME = milisBack,
                                     REQUEST_ATTRIBUTE_1 = dataAPI.merchant_code,
+                                    REQUEST_ATTRIBUTE_2 = myData,
                                     REQUEST_STATUS = "Failed"
                                 };
                                 currentLog.REQUEST_EXCEPTION = responseFromServer;
@@ -3294,6 +3297,7 @@ namespace MasterOnline.Controllers
                                 REQUEST_ACTION = "Refresh Token Shopee V2", //ganti
                                 REQUEST_DATETIME = milisBack,
                                 REQUEST_ATTRIBUTE_1 = dataAPI.merchant_code,
+                                REQUEST_ATTRIBUTE_2 = myData,
                                 REQUEST_STATUS = "Failed"
                             };
                             currentLog.REQUEST_EXCEPTION = responseFromServer + ";" + ex.Message;
