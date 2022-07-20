@@ -390,7 +390,7 @@ namespace MasterOnline.Controllers
                                 REQUEST_ATTRIBUTE_2 = myData,
                                 REQUEST_STATUS = "Failed"
                             };
-                            currentLog.REQUEST_EXCEPTION = responseFromServer;
+                            currentLog.REQUEST_EXCEPTION = responseFromServer + ";" + ex.Message;
                             manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, dataAPI, currentLog);
                             //currentLog.REQUEST_EXCEPTION = ex.Message.ToString();
                             //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, dataAPI, currentLog);
