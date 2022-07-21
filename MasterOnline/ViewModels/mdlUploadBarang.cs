@@ -34,6 +34,7 @@ namespace MasterOnline
         public string BRG { get; set; }
         public string NAMABRG { get; set; }
         public string GAMBAR_MO { get; set; }
+        public string TYPE { get; set; }
 
     }
 }

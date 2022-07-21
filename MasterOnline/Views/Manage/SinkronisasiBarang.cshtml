@@ -247,8 +247,8 @@
                             <div class=" col-lg-5 col-sm-5 col-md-5 pull-right">
                                 <div class="text">
                                     <select class="form-control" id="TakeRecord" name="TakeRecord" required="required">
-                                        <option value="10" selected>10</option>
-                                        <option value="100">100</option>
+                                        @*<option value="10" selected>10</option>*@
+                                        <option value="100" selected>100</option>
                                         <option value="200">200</option>
                                         <option value="500">500</option>
                                         <option value="1000">1000</option>
@@ -281,7 +281,7 @@
                         <label style="font-size:15px;">Rekomendasi : Master Barang Master Online</label>
                     </div>
                     <div class="row barang_table_section" style="padding-left:10px;">
-                        <div class="input-group col-sm-8 col-md-8">
+                        <div class="input-group col-sm-9 col-md-9">
                             <input id="search_barang" type="text" class="form-control" placeholder="Pencarian">
                             <span class="input-group-btn">
                                 <button type="button" id="search_barang_click" class="btn btn-primary">
@@ -447,7 +447,9 @@
 
             $('#TakeRecord').change(function () {
                 //searchTablePesananSudahDibayar();
-                refreshTableBarangSinkro("1");
+                if ($('#promptHiddenField').val() != "") {
+                    refreshTableBarangSinkro("1");
+                }
             });
 
             $('#search_barang2').keypress(function (e) {
@@ -509,6 +511,29 @@
             RefreshTableBarangSinkroMaster(recnum);
             $('.btn-success').addClass('btn-primary').removeClass('btn-success');
             $('#btnPilih_' + recnum).addClass('btn-success');
+        }
+        function pilihBrgHapus(recnum, nama, brg) {
+            if(confirm("Hapus Link barang : " + nama + " \ndengan barang : " + brg))
+            {
+                currentBrg = "";
+                $('.btn-success').addClass('btn-primary').removeClass('btn-success');
+                var $link = '@Html.Raw(Url.Action("HapusDraftSinkro", "Manage", new { cust = "replaceCust"}))';
+                $link = $link.replace("replaceCust", encodeURIComponent($('#promptHiddenField').val()));
+                $link += "&recnum=" + recnum;
+
+                $.ajax({
+                    type: "GET",
+                    url: $link,
+                    beforeSend: function () {
+                    },
+                    success: function (response) {
+                        refreshTableBarangSinkro();
+                    },
+                    error: function (xhr, status, error) {
+                        console.log(error);
+                    }
+                });
+            }
         }
         function RefreshTableBarangSinkroMaster(recnum) {
 
@@ -596,9 +621,9 @@
                         alert(response.error);
                     }
                     else {
-                        if (response.cekOtherTemp != null) {
+                        if (response.linkrecnum != null) {
                             // remove other link
-                            response.cekOtherTemp.forEach(function () {
+                            response.linkrecnum.forEach(function () {
                                             var $value2 = $(this);
                                 $('#txtKodeBrgMO_' + $value2).text('');
                                 $('#txtGambarBrgMO_' + $value2).html('');
