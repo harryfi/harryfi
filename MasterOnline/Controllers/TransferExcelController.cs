@@ -8662,277 +8662,83 @@ namespace MasterOnline.Controllers
                     string dt1 = DateTime.ParseExact(drtgl, "dd'/'MM'/'yyyy", CultureInfo.InvariantCulture).ToString("yyyy'-'MM'-'dd 00:00:00.000");
                     string dt2 = DateTime.ParseExact(sdtgl, "dd'/'MM'/'yyyy", CultureInfo.InvariantCulture).ToString("yyyy'-'MM'-'dd 23:59:59.999");
 
-                    //CHANGE BY NURUL 25/1/2022
-                    //string sSQL = "SELECT ISNULL(A.NO_BUKTI,'') AS NO_FAKTUR, A.TGL AS TGL_FAKTUR, A.STATUS AS STATUS_FAKTUR, " +
-                    //    "ISNULL(D.NO_BUKTI,'') AS NO_PESANAN, ISNULL(A.NO_REF, '') AS NO_REFERENSI, ISNULL(D.TGL, '') AS TGL_PESANAN, " +
-                    //    //add by nurul 22/6/2021
-                    //    "A.CUST AS CUST, " +
-                    //    //end add by nurul 22/6/2021
-                    //    //change by nurul 17/6/2021
-                    //    //"C.NAMAMARKET + '(' + B.PERSO + ')' MARKETPLACE, ISNULL(A.CUST, '') AS KODE_PEMBELI, ISNULL(A.NAMAPEMESAN, '') AS PEMBELI, " +
-                    //    "C.NAMAMARKET + '(' + B.PERSO + ')' MARKETPLACE, ISNULL(A.PEMESAN, '') AS KODE_PEMBELI, ISNULL(A.NAMAPEMESAN, '') AS PEMBELI, " +
-                    //    "(select isnull(tlp,'') from arf01c x(nolock) where x.buyer_code=a.PEMESAN) as TLP, " +
-                    //    //end change by nurul 17/6/2021
-                    //    "ISNULL(A.AL, '') AS ALAMAT_KIRIM, ISNULL(A.TERM, '') AS [TOP], ISNULL(A.NAMAPENGIRIM, '') AS KURIR, ISNULL(A.TGL_JT_TEMPO, '') AS TGL_JATUH_TEMPO, " +
-                    //    //"ISNULL(D.KET, '') AS KETERANGAN, ISNULL(A.BRUTO, '') AS BRUTO, ISNULL(A.DISCOUNT,'') AS DISC, ISNULL(A.PPN, '') AS PPN, ISNULL(A.NILAI_PPN, '') AS NILAI_PPN, " +
-                    //    //"ISNULL(D.ONGKOS_KIRIM, '') AS ONGKOS_KIRIM, ISNULL(A.NETTO, '') AS NETTO, ISNULL(D.STATUS_TRANSAKSI, '') AS STATUS_PESANAN, " +
-                    //    "ISNULL(D.KET, '') AS KETERANGAN, ISNULL(A.BRUTO, '') AS BRUTO, ISNULL(A.NILAI_DISC, '') AS DISC, ISNULL(A.PPN, '') AS PPN, ISNULL(A.NILAI_PPN, '') AS NILAI_PPN, " +
-                    //    "ISNULL(A.MATERAI, '') AS ONGKOS_KIRIM, ISNULL(A.NETTO, '') AS NETTO, ISNULL(D.STATUS_TRANSAKSI, '') AS STATUS_PESANAN, " +
-                    //    "ISNULL(G.BRG, '') AS KODE_BRG, ISNULL(H.NAMA,'') + ' ' + ISNULL(H.NAMA2, '') AS NAMA_BARANG, ISNULL(QTY, '') AS QTY, " +
-                    //    "ISNULL(H_SATUAN, '') AS HARGA_SATUAN, ISNULL(G.DISCOUNT, '') AS DISC1, ISNULL(G.NILAI_DISC_1, '') AS NDISC1, " +
-                    //    "ISNULL(G.DISCOUNT_2, '') AS DISC2, ISNULL(G.NILAI_DISC_2, '') AS NDISC2, ISNULL(HARGA, '') AS TOTAL " +
-                    //    //ADD BY NURUL 25/8/2021
-                    //    //",ISNULL(Z.NAMA,'') AS TEMP_PEMBELI, ISNULL(Z.TLP,'') AS TEMP_TLP, ISNULL(Z.ALAMAT,'') AS TEMP_ALAMAT_KIRIM, ISNULL(Z.PEMBELI,'') AS TEMP_KODE_PEMBELI " +
-                    //    //END ADD BY NURUL 25/8/2021
-                    //    "FROM SIT01A A LEFT JOIN ARF01 B ON A.CUST = B.CUST " +
-                    //    "LEFT JOIN MO.dbo.MARKETPLACE C ON B.NAMA = C.IdMarket " +
-                    //    "LEFT JOIN SOT01A D ON A.NO_SO = D.NO_BUKTI " +
-                    //    "LEFT JOIN SIT01B G ON A.NO_BUKTI = G.NO_BUKTI " +
-                    //    "LEFT JOIN STF02 H ON G.BRG = H.BRG " +
-                    //    "LEFT JOIN (SELECT DISTINCT NO_BUKTI FROM SIT01A A INNER JOIN ART03B B ON A.NO_BUKTI = B.NFAKTUR)E ON A.NO_BUKTI = E.NO_BUKTI " +
-                    //    "LEFT JOIN (select ret.jenis_form,ret.no_bukti as bukti_ret,ret.no_ref as no_si,fkt.no_bukti as bukti_faktur from sit01a ret inner join sit01a fkt on fkt.no_bukti=ret.no_ref where ret.jenis_form='3') F ON A.NO_BUKTI=F.BUKTI_FAKTUR " +
-                    //    //ADD BY NURUL 25/8/2021
-                    //    //"LEFT JOIN PEMBELI_FAKTUR_SHOPEE Z(NOLOCK) ON Z.FAKTUR=A.NO_BUKTI " +
-                    //    //END ADD BY NURUL 25/8/2021
-                    //    "WHERE A.TGL BETWEEN '" + dt1 + "' AND '" + dt2 + "' " +
-                    //    "AND A.JENIS_FORM = '2' " +
-                    //    "ORDER BY A.TGL DESC, A.NO_BUKTI DESC";
-                    //var delTemp = EDB.ExecuteSQL("CString", System.Data.CommandType.Text, "DROP TABLE #temp_FAKTUR_DESEMBER");
-                    //if (delTemp > 0)
-                    //{
-
-                    //}
-                    string sSQL = "";
-                    //sSQL += "SELECT ISNULL(A.NO_BUKTI,'') AS NO_FAKTUR, A.TGL AS TGL_FAKTUR, CASE WHEN A.STATUS ='1' THEN 'SELESAI' WHEN A.STATUS='2' THEN 'BATAL' ELSE '' END AS STATUS_FAKTUR, ISNULL(D.NO_BUKTI,'') AS NO_PESANAN, ISNULL(A.NO_REF, '') AS NO_REFERENSI, ";
-                    //sSQL += "ISNULL(D.TGL, '') AS TGL_PESANAN, A.CUST AS CUST, ";
-                    //sSQL += "ISNULL((SELECT top 1 NAMAMARKET + ' (' + PERSO + ')' FROM ARF01 X(NOLOCK) INNER JOIN MO..MARKETPLACE Y(NOLOCK) ON X.NAMA = Y.IDMARKET WHERE X.CUST = A.CUST),'') AS MARKETPLACE, ";
-                    //sSQL += "ISNULL(A.PEMESAN, '') AS KODE_PEMBELI, ISNULL(A.NAMAPEMESAN, '') AS PEMBELI, ";
-                    //sSQL += "(select isnull(tlp, '') from arf01c x(nolock) where x.buyer_code = a.PEMESAN) as TLP,  ";
-                    //sSQL += "ISNULL(A.AL, '') AS ALAMAT_KIRIM, ISNULL(A.TERM, '') AS[TOP],  ";
-                    //sSQL += "ISNULL(A.NAMAPENGIRIM, '') AS KURIR, ISNULL(A.TGL_JT_TEMPO, '') AS TGL_JATUH_TEMPO, ISNULL(D.KET, '') AS KETERANGAN, ISNULL(A.BRUTO, '') AS BRUTO, ISNULL(A.NILAI_DISC, '') AS DISC, ";
-                    //sSQL += "ISNULL(A.PPN, '') AS PPN, ISNULL(A.NILAI_PPN, '') AS NILAI_PPN, ISNULL(A.MATERAI, '') AS ONGKOS_KIRIM, ISNULL(A.NETTO, '') AS NETTO, ";
-                    //sSQL += "CASE WHEN ISNULL(D.STATUS_TRANSAKSI, '')= '0' THEN 'BELUM BAYAR' WHEN ISNULL(D.STATUS_TRANSAKSI, '')= '01' THEN 'SUDAH BAYAR' WHEN ISNULL(D.STATUS_TRANSAKSI, '')= '02' THEN 'PACKING' WHEN ISNULL(D.STATUS_TRANSAKSI, '')= '03' THEN 'FAKTUR' WHEN ISNULL(D.STATUS_TRANSAKSI, '')= '04' THEN 'SELESAI' WHEN ISNULL(D.STATUS_TRANSAKSI, '')= '11' THEN 'BATAL' WHEN ISNULL(D.STATUS_TRANSAKSI, '')= '12' THEN 'BATAL COD' ELSE '' END AS STATUS_PESANAN,  ";
-                    //sSQL += "ISNULL(G.BRG, '') AS KODE_BRG, ";
-                    //sSQL += "ISNULL((SELECT ISNULL(NAMA + ' ' + ISNULL(NAMA2, ''), '') FROM STF02 WHERE BRG = G.BRG),'') AS NAMA_BARANG, ";
-                    //sSQL += "ISNULL(QTY, '') AS QTY, ";
-                    //sSQL += "ISNULL(H_SATUAN, '') AS HARGA_SATUAN, ISNULL(G.DISCOUNT, '') AS DISC1, ISNULL(G.NILAI_DISC_1, '') AS NDISC1, ISNULL(G.DISCOUNT_2, '') AS DISC2, ";
-                    //sSQL += "ISNULL(G.NILAI_DISC_2, '') AS NDISC2, ISNULL(HARGA, '') AS TOTAL ";
-                    //sSQL += "into #temp_FAKTUR_DESEMBER ";
-                    //sSQL += "FROM SIT01A A(NOLOCK) INNER JOIN SIT01B G(NOLOCK) ON A.NO_BUKTI = G.NO_BUKTI ";
-                    //sSQL += "LEFT JOIN(SELECT NO_BUKTI, TGL, KET, STATUS_TRANSAKSI FROM SOT01A (NOLOCK))D ON D.NO_BUKTI = A.NO_SO ";
-                    //sSQL += "WHERE A.TGL >= '" + dt1 + "' AND A.TGL <= '" + dt2 + "' AND A.JENIS_FORM = '2' ORDER BY A.TGL DESC, A.NO_BUKTI DESC; " + System.Environment.NewLine;
-
-                    //sSQL += "SELECT NO_FAKTUR, TGL_FAKTUR, STATUS_FAKTUR, NO_PESANAN, NO_REFERENSI, TGL_PESANAN, CUST, MARKETPLACE, KODE_PEMBELI, PEMBELI, TLP, REPLACE(REPLACE(ALAMAT_KIRIM, CHAR(13), ' '), CHAR(10), ' ') AS ALAMAT_KIRIM, ";
-                    //sSQL += "[TOP], KURIR, TGL_JATUH_TEMPO, REPLACE(REPLACE(convert(nvarchar, KETERANGAN), CHAR(13), ' '), CHAR(10), ' ') AS KETERANGAN, BRUTO, DISC, PPN, NILAI_PPN, ONGKOS_KIRIM, NETTO, STATUS_PESANAN, KODE_BRG, NAMA_BARANG, QTY, HARGA_SATUAN, DISC1, NDISC1, DISC2, NDISC2, TOTAL ";
-                    //sSQL += "FROM #temp_FAKTUR_DESEMBER; " + System.Environment.NewLine;
-                    //sSQL += "DROP TABLE #temp_FAKTUR_DESEMBER; " + System.Environment.NewLine;
-                    //END CHANGE BY NURUL 25/1/2022
-
-                    sSQL = "select NO_BUKTI,TGL,CUST,PEMESAN,NAMAPEMESAN,AL,TERM,NAMAPENGIRIM,TGL_JT_TEMPO,BRUTO ,NILAI_DISC,PPN,NILAI_PPN,MATERAI,NETTO,NO_so, status, no_ref ";
-                    sSQL += "into #temp_sit01a from sit01a where TGL >= '" + dt1 + "' AND TGL <=  '" + dt2 + "' AND JENIS_FORM = '2' ; " + System.Environment.NewLine;
-                    sSQL += "select brg, qty ,DISCOUNT,DISCOUNT_2,NILAI_DISC_1, NILAI_DISC_2, HARGA,H_SATUAN,NO_BUKTI ";
-                    sSQL += "into #temp_sit01b from sit01b where NO_BUKTI in (select NO_BUKTI from #temp_sit01a) ; " + System.Environment.NewLine;
-                    sSQL += "select NO_BUKTI,TGL,KET,STATUS_TRANSAKSI into #temp_SOT01A from SOT01A where NO_BUKTI in (select NO_so from #temp_sit01a where isnull(no_so, '') <> '') ; " + System.Environment.NewLine;
-
-                    sSQL += "SELECT ISNULL(A.NO_BUKTI,'') AS NO_FAKTUR, A.TGL AS TGL_FAKTUR, CASE WHEN A.STATUS ='1' THEN 'SELESAI' WHEN A.STATUS='2' THEN 'BATAL' ELSE '' END AS STATUS_FAKTUR,  ";
-                    sSQL += "ISNULL(D.NO_BUKTI,'') AS NO_PESANAN, ISNULL(A.NO_REF, '') AS NO_REFERENSI,  ";
-                    sSQL += "ISNULL(D.TGL, '') AS TGL_PESANAN, A.CUST AS CUST, ";
-                    sSQL += "ISNULL((SELECT top 1 NAMAMARKET + ' (' + PERSO + ')' FROM ARF01 X(NOLOCK) INNER JOIN MO..MARKETPLACE Y (NOLOCK) ON X.NAMA=Y.IDMARKET WHERE X.CUST=A.CUST ORDER BY RECNUM DESC),'') AS MARKETPLACE, ";
-                    sSQL += "ISNULL(A.PEMESAN, '') AS KODE_PEMBELI, ISNULL(A.NAMAPEMESAN, '') AS PEMBELI,  ";
-                    sSQL += "(select isnull(tlp,'') from arf01c x(nolock) where x.buyer_code=a.PEMESAN) as TLP,  ";
-                    sSQL += "REPLACE(REPLACE(ISNULL(A.AL, ''), CHAR(13), ' '), CHAR(10), ' ') AS ALAMAT_KIRIM, ISNULL(A.TERM, '') AS [TOP],  ";
-                    sSQL += "ISNULL(A.NAMAPENGIRIM, '') AS KURIR, ISNULL(A.TGL_JT_TEMPO, '') AS TGL_JATUH_TEMPO, REPLACE(REPLACE(convert(nvarchar, ISNULL(D.KET,'')), CHAR(13), ' '), CHAR(10), ' ') AS KETERANGAN, ISNULL(A.BRUTO, '') AS BRUTO, ISNULL(A.NILAI_DISC, '') AS DISC,  ";
-                    sSQL += "ISNULL(A.PPN, '') AS PPN, ISNULL(A.NILAI_PPN, '') AS NILAI_PPN, ISNULL(A.MATERAI, '') AS ONGKOS_KIRIM, ISNULL(A.NETTO, '') AS NETTO,  ";
-                    sSQL += "CASE WHEN ISNULL(D.STATUS_TRANSAKSI, '')='0' THEN 'BELUM BAYAR' WHEN ISNULL(D.STATUS_TRANSAKSI, '')='01' THEN 'SUDAH BAYAR' WHEN ISNULL(D.STATUS_TRANSAKSI, '')='02' THEN 'PACKING' WHEN ISNULL(D.STATUS_TRANSAKSI, '')='03' THEN 'FAKTUR' WHEN ISNULL(D.STATUS_TRANSAKSI, '')='04' THEN 'SELESAI' WHEN ISNULL(D.STATUS_TRANSAKSI, '')='11' THEN 'BATAL' ELSE '' END AS STATUS_PESANAN,  ";
-                    sSQL += "ISNULL(G.BRG, '') AS KODE_BRG,  ";
-                    sSQL += "ISNULL((SELECT ISNULL(NAMA + ' ' + ISNULL(NAMA2,''),'') FROM STF02 WHERE BRG=G.BRG),'') AS NAMA_BARANG, ";
-                    sSQL += "ISNULL(QTY, '') AS QTY,  ";
-                    sSQL += "ISNULL(H_SATUAN, '') AS HARGA_SATUAN, ISNULL(G.DISCOUNT, '') AS DISC1, ISNULL(G.NILAI_DISC_1, '') AS NDISC1, ISNULL(G.DISCOUNT_2, '') AS DISC2,  ";
-                    sSQL += "ISNULL(G.NILAI_DISC_2, '') AS NDISC2, ISNULL(HARGA, '') AS TOTAL  ";
-                    sSQL += "FROM #temp_sit01a A INNER JOIN #temp_sit01b G ON A.NO_BUKTI = G.NO_BUKTI  ";
-                    sSQL += "LEFT JOIN  ";
-                    sSQL += "#temp_SOT01A D ON D.NO_BUKTI=A.NO_SO ";
-                    sSQL += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC; " + System.Environment.NewLine;
-
-                    sSQL += "drop table #temp_sit01a; " + System.Environment.NewLine;
-                    sSQL += "drop table #temp_sit01b; " + System.Environment.NewLine;
-                    sSQL += "drop table #temp_SOT01A ; " + System.Environment.NewLine;
+                    DateTime tanggal1 = Convert.ToDateTime(drtgl);
+                    DateTime tanggal2 = Convert.ToDateTime(sdtgl);
+                    TimeSpan ts = new TimeSpan();
+                    ts = tanggal2.Subtract(tanggal1);
 
 
-                    var lsFaktur = EDB.GetDataSet("CString", "SIT01A", sSQL);
-
-                    if (lsFaktur.Tables[0].Rows.Count > 0)
+                    if(ts.Days > 30)
                     {
-
-                        worksheet.Cells["A1"].Value = "FAKTUR PENJUALAN";
-                        worksheet.Cells["A2"].Value = "Dari Tanggal : " + drtgl + " Sampai Tanggal : " + sdtgl;
-
-                        for (int i = 0; i < lsFaktur.Tables[0].Rows.Count; i++)
-                        {
-                            worksheet.Cells[5 + i, 1].Value = lsFaktur.Tables[0].Rows[i]["NO_FAKTUR"];
-                            worksheet.Cells[5 + i, 2].Value = Convert.ToDateTime(lsFaktur.Tables[0].Rows[i]["TGL_FAKTUR"]).ToString("yyyy-MM-dd HH:mm:ss");
-                            //var status1 = "";
-                            //switch (lsFaktur.Tables[0].Rows[i]["STATUS_FAKTUR"])
-                            //{
-                            //    case "1": status1 = "SELESAI"; break;
-                            //    case "2": status1 = "BATAL"; break;
-                            //}
-                            //worksheet.Cells[5 + i, 3].Value = status1;
-                            worksheet.Cells[5 + i, 3].Value = lsFaktur.Tables[0].Rows[i]["STATUS_FAKTUR"];
-                            worksheet.Cells[5 + i, 4].Value = lsFaktur.Tables[0].Rows[i]["NO_PESANAN"];
-                            worksheet.Cells[5 + i, 5].Value = lsFaktur.Tables[0].Rows[i]["NO_REFERENSI"];
-                            worksheet.Cells[5 + i, 6].Value = Convert.ToDateTime(lsFaktur.Tables[0].Rows[i]["TGL_PESANAN"]).ToString("yyyy-MM-dd HH:mm:ss");
-                            //ADD BY NURUL 22/6/2021
-                            worksheet.Cells[5 + i, 7].Value = lsFaktur.Tables[0].Rows[i]["CUST"];
-                            //END ADD BY NURUL 22/6/2021
-                            worksheet.Cells[5 + i, 8].Value = lsFaktur.Tables[0].Rows[i]["MARKETPLACE"];
-                            //add by nurul 25/8/2021
-                            //var kode_pembeli = "";
-                            //var pembeli = "";
-                            //var tlp = "";
-                            //var alamat = "";
-                            //if(Convert.ToString(lsFaktur.Tables[0].Rows[i]["KODE_PEMBELI"]).Contains("*") && Convert.ToString(lsFaktur.Tables[0].Rows[i]["TEMP_KODE_PEMBELI"]) != "")
-                            //{
-                            //    kode_pembeli = Convert.ToString(lsFaktur.Tables[0].Rows[i]["TEMP_KODE_PEMBELI"]);
-                            //}
-                            //else
-                            //{
-                            //    kode_pembeli = Convert.ToString(lsFaktur.Tables[0].Rows[i]["KODE_PEMBELI"]);
-                            //}
-                            //if (Convert.ToString(lsFaktur.Tables[0].Rows[i]["PEMBELI"]).Contains("*") && Convert.ToString(lsFaktur.Tables[0].Rows[i]["TEMP_PEMBELI"]) != "")
-                            //{
-                            //    pembeli = Convert.ToString(lsFaktur.Tables[0].Rows[i]["TEMP_PEMBELI"]);
-                            //}
-                            //else
-                            //{
-                            //    pembeli = Convert.ToString(lsFaktur.Tables[0].Rows[i]["PEMBELI"]);
-                            //}
-                            //if (Convert.ToString(lsFaktur.Tables[0].Rows[i]["TLP"]).Contains("*") && Convert.ToString(lsFaktur.Tables[0].Rows[i]["TEMP_TLP"]) != "")
-                            //{
-                            //    tlp = Convert.ToString(lsFaktur.Tables[0].Rows[i]["TEMP_TLP"]);
-                            //}
-                            //else
-                            //{
-                            //    tlp = Convert.ToString(lsFaktur.Tables[0].Rows[i]["TLP"]);
-                            //}
-                            //if (Convert.ToString(lsFaktur.Tables[0].Rows[i]["ALAMAT_KIRIM"]).Contains("*") && Convert.ToString(lsFaktur.Tables[0].Rows[i]["TEMP_ALAMAT_KIRIM"]) != "")
-                            //{
-                            //    alamat = Convert.ToString(lsFaktur.Tables[0].Rows[i]["TEMP_ALAMAT_KIRIM"]);
-                            //}
-                            //else
-                            //{
-                            //    alamat = Convert.ToString(lsFaktur.Tables[0].Rows[i]["ALAMAT_KIRIM"]);
-                            //}
-
-                            worksheet.Cells[5 + i, 9].Value = lsFaktur.Tables[0].Rows[i]["KODE_PEMBELI"];
-                            worksheet.Cells[5 + i, 10].Value = lsFaktur.Tables[0].Rows[i]["PEMBELI"];
-                            //ADD BY NURUL 17/6/2021
-                            worksheet.Cells[5 + i, 11].Value = lsFaktur.Tables[0].Rows[i]["TLP"];
-                            //END ADD BY NURUL 17/6/2021
-                            worksheet.Cells[5 + i, 12].Value = lsFaktur.Tables[0].Rows[i]["ALAMAT_KIRIM"];
-                            //worksheet.Cells[5 + i, 9].Value = kode_pembeli;
-                            //worksheet.Cells[5 + i, 10].Value = pembeli;
-                            ////ADD BY NURUL 17/6/2021
-                            //worksheet.Cells[5 + i, 11].Value = tlp;
-                            ////END ADD BY NURUL 17/6/2021
-                            //worksheet.Cells[5 + i, 12].Value = alamat;
-                            //add by nurul 25/8/2021
-
-                            worksheet.Cells[5 + i, 13].Value = lsFaktur.Tables[0].Rows[i]["KURIR"];
-                            worksheet.Cells[5 + i, 14].Value = lsFaktur.Tables[0].Rows[i]["TOP"];
-                            worksheet.Cells[5 + i, 15].Value = Convert.ToDateTime(lsFaktur.Tables[0].Rows[i]["TGL_JATUH_TEMPO"]).ToString("yyyy-MM-dd HH:mm:ss");
-                            worksheet.Cells[5 + i, 16].Value = lsFaktur.Tables[0].Rows[i]["KETERANGAN"];
-                            worksheet.Cells[5 + i, 17].Value = lsFaktur.Tables[0].Rows[i]["BRUTO"];
-                            worksheet.Cells[5 + i, 18].Value = lsFaktur.Tables[0].Rows[i]["DISC"];
-                            worksheet.Cells[5 + i, 19].Value = lsFaktur.Tables[0].Rows[i]["PPN"];
-                            worksheet.Cells[5 + i, 20].Value = lsFaktur.Tables[0].Rows[i]["NILAI_PPN"];
-                            worksheet.Cells[5 + i, 21].Value = lsFaktur.Tables[0].Rows[i]["ONGKOS_KIRIM"];
-                            worksheet.Cells[5 + i, 22].Value = lsFaktur.Tables[0].Rows[i]["NETTO"];
-                            //var pesanan1 = "";
-                            //switch (lsFaktur.Tables[0].Rows[i]["STATUS_PESANAN"])
-                            //{
-                            //    case "0": pesanan1 = "BELUM BAYAR"; break;
-                            //    case "01": pesanan1 = "SUDAH BAYAR"; break;
-                            //    case "02": pesanan1 = "PACKING"; break;
-                            //    case "03": pesanan1 = "FAKTUR"; break;
-                            //    case "04": pesanan1 = "SELESAI"; break;
-                            //    case "11": pesanan1 = "BATAL"; break;
-                            //}
-                            //worksheet.Cells[5 + i, 23].Value = pesanan1;
-                            worksheet.Cells[5 + i, 23].Value = lsFaktur.Tables[0].Rows[i]["STATUS_PESANAN"];
-                            worksheet.Cells[5 + i, 24].Value = lsFaktur.Tables[0].Rows[i]["KODE_BRG"];
-                            worksheet.Cells[5 + i, 25].Value = lsFaktur.Tables[0].Rows[i]["NAMA_BARANG"];
-                            worksheet.Cells[5 + i, 26].Value = lsFaktur.Tables[0].Rows[i]["QTY"];
-                            worksheet.Cells[5 + i, 27].Value = lsFaktur.Tables[0].Rows[i]["HARGA_SATUAN"];
-                            worksheet.Cells[5 + i, 28].Value = lsFaktur.Tables[0].Rows[i]["DISC1"];
-                            worksheet.Cells[5 + i, 29].Value = lsFaktur.Tables[0].Rows[i]["NDISC1"];
-                            worksheet.Cells[5 + i, 30].Value = lsFaktur.Tables[0].Rows[i]["DISC2"];
-                            worksheet.Cells[5 + i, 31].Value = lsFaktur.Tables[0].Rows[i]["NDISC2"];
-                            worksheet.Cells[5 + i, 32].Value = lsFaktur.Tables[0].Rows[i]["TOTAL"];
-                        }
-
-                        ExcelRange rg0 = worksheet.Cells[4, 1, worksheet.Dimension.End.Row, 32];
-                        string tableName0 = "TableFaktur";
-                        ExcelTable table0 = worksheet.Tables.Add(rg0, tableName0);
-
-                        table0.Columns[0].Name = "NO FAKTUR";
-                        table0.Columns[1].Name = "TGL FAKTUR";
-                        table0.Columns[2].Name = "STATUS FAKTUR";
-                        table0.Columns[3].Name = "NO PESANAN";
-                        table0.Columns[4].Name = "NO REFERENSI";
-                        table0.Columns[5].Name = "TGL PESANAN";
-                        //ADD BY NURUL 17/6/2021
-                        table0.Columns[6].Name = "KODE MARKETPLACE";
-                        //END ADD BY NURUL 17/6/2021
-                        table0.Columns[7].Name = "MARKETPLACE";
-                        table0.Columns[8].Name = "KODE PEMBELI";
-                        table0.Columns[9].Name = "PEMBELI";
-                        //ADD BY NURUL 17/6/2021
-                        table0.Columns[10].Name = "TLP";
-                        //END ADD BY NURUL 17/6/2021
-                        table0.Columns[11].Name = "ALAMAT KIRIM";
-                        table0.Columns[12].Name = "KURIR";
-                        table0.Columns[13].Name = "TOP";
-                        table0.Columns[14].Name = "TGL JATUH TEMPO";
-                        table0.Columns[15].Name = "KETERANGAN";
-                        table0.Columns[16].Name = "BRUTO";
-                        table0.Columns[17].Name = "DISC";
-                        table0.Columns[18].Name = "PPN";
-                        table0.Columns[19].Name = "NILAI PPN";
-                        table0.Columns[20].Name = "ONGKOS KIRIM";
-                        table0.Columns[21].Name = "NETTO";
-                        table0.Columns[22].Name = "STATUS PESANAN";
-                        table0.Columns[23].Name = "KODE BRG";
-                        table0.Columns[24].Name = "NAMA BARANG";
-                        table0.Columns[25].Name = "QTY";
-                        table0.Columns[26].Name = "HARGA SATUAN";
-                        table0.Columns[27].Name = "DISC1";
-                        table0.Columns[28].Name = "NDISC1";
-                        table0.Columns[29].Name = "DISC2";
-                        table0.Columns[30].Name = "NDISC2";
-                        table0.Columns[31].Name = "TOTAL";
-
-                        using (var range = worksheet.Cells[4, 1, 4, 32])
-                        {
-                            range.Style.Border.Top.Style = ExcelBorderStyle.Thin;
-                            range.Style.Border.Left.Style = ExcelBorderStyle.Thin;
-                            range.Style.Border.Right.Style = ExcelBorderStyle.Thin;
-                            range.Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
-                        }
-
-                        table0.ShowHeader = true;
-                        table0.ShowFilter = true;
-                        table0.ShowRowStripes = false;
-                        worksheet.Cells.AutoFitColumns(0);
-
-                        ret.byteExcel = package.GetAsByteArray();
-                        ret.namaFile = username + "_faktur" + ".xlsx";
+                        ret.Errors.Add("Jarak waktu tidak bisa melebihi 30 hari.");
                     }
                     else
                     {
-                        ret.Errors.Add("Tidak ada data faktur");
-                    }
+                        string sSQL = "";
 
+                        sSQL = "select c.buyer_code[Kode_Pembeli],C.nama[Nama_Pembeli], NamaProv[Provinsi],  NamaKabKot[Kota], isnull(c.EMAIL, '')[Email], C.TLP[No.HP], COUNT(PEMESAN) [Total_Pesanan],ISNULL(SUM(NILAI), 0)[Nilai_Pesanan]";
+                        sSQL += "FROM ARF01C C LEFT JOIN (SELECT ISNULL(A.PEMESAN, ISNULL(B.PEMESAN, '')) PEMESAN, ISNULL(B.BRUTO, ISNULL(A.BRUTO, 0)) NILAI, A.TGL, B.CUST ";
+                        sSQL += "FROM SOT01A A FULL OUTER JOIN SIT01A B ON A.NO_BUKTI = B.NO_SO LEFT JOIN SIT01A  R ON B.NO_BUKTI = R.NO_REF AND R.JENIS_FORM = '3' WHERE ISNULL(A.STATUS_TRANSAKSI, '') <> '0' ";
+                        sSQL += "AND ISNULL(A.STATUS_TRANSAKSI, '') <> '11' AND ISNULL(B.JENIS_FORM, '2') = '2' AND ISNULL(B.STATUS, '') <> '2' AND ISNULL(R.NO_BUKTI, '') = '' ";
+                        sSQL += ") AS QRY ON C.BUYER_CODE = QRY.PEMESAN left join mo..Provinsi prov on prov.KodeProv=c.KODEPROV left join mo..KabupatenKota kab on kab.KodeKabKot = c.KODEKABKOT left join arf01 arf (nolock) on arf.cust = QRY.cust left join mo..marketplace mp (nolock) on arf.nama = mp.idmarket ";
+                        sSQL += "where QRY.TGL >= '" + dt1 + "' and QRY.TGL <= '" + dt2 + "' ";
+                        sSQL += "group by c.buyer_code, mp.namamarket, arf.perso, C.nama, C.KODEPROV, NamaProv , C.KODEKABKOT, NamaKabKot , C.email, C.TLP, cast(C.AL as nvarchar(max)), pemesan, c.recnum ";
+                        sSQL += "order by sum(QRY.NILAI) desc"; 
+
+                        var lsPembeli = EDB.GetDataSet("CString", "ARF01C", sSQL);
+
+                        if (lsPembeli.Tables[0].Rows.Count > 0)
+                        {
+
+                            worksheet.Cells["A1"].Value = "DATA PEMBELI";
+                            worksheet.Cells["A2"].Value = "Dari Tanggal : " + drtgl + " Sampai Tanggal : " + sdtgl;
+
+                            for (int i = 0; i < lsPembeli.Tables[0].Rows.Count; i++)
+                            {
+                                worksheet.Cells[5 + i, 1].Value = lsPembeli.Tables[0].Rows[i]["Kode_Pembeli"];
+                                worksheet.Cells[5 + i, 2].Value = lsPembeli.Tables[0].Rows[i]["Nama_Pembeli"];
+                                worksheet.Cells[5 + i, 3].Value = lsPembeli.Tables[0].Rows[i]["Provinsi"];
+                                worksheet.Cells[5 + i, 4].Value = lsPembeli.Tables[0].Rows[i]["Kota"];
+                                worksheet.Cells[5 + i, 5].Value = lsPembeli.Tables[0].Rows[i]["Email"];
+                                worksheet.Cells[5 + i, 6].Value = lsPembeli.Tables[0].Rows[i]["No.HP"];
+                                worksheet.Cells[5 + i, 7].Value = lsPembeli.Tables[0].Rows[i]["Total_Pesanan"];
+                                worksheet.Cells[5 + i, 8].Value = lsPembeli.Tables[0].Rows[i]["Nilai_Pesanan"];
+                            }
+
+                            ExcelRange rg0 = worksheet.Cells[4, 1, worksheet.Dimension.End.Row, 8];
+                            string tableName0 = "TableDataPembeli";
+                            ExcelTable table0 = worksheet.Tables.Add(rg0, tableName0);
+
+                            table0.Columns[0].Name = "Kode Pembeli";
+                            table0.Columns[1].Name = "Nama Pembeli";
+                            table0.Columns[2].Name = "Provinsi";
+                            table0.Columns[3].Name = "Kota";
+                            table0.Columns[4].Name = "Email";
+                            table0.Columns[5].Name = "No. HP";
+                            table0.Columns[6].Name = "Total Pesanan";
+                            table0.Columns[7].Name = "Nilai Pesanan";
+
+                            using (var range = worksheet.Cells[4, 1, 4, 8])
+                            {
+                                range.Style.Border.Top.Style = ExcelBorderStyle.Thin;
+                                range.Style.Border.Left.Style = ExcelBorderStyle.Thin;
+                                range.Style.Border.Right.Style = ExcelBorderStyle.Thin;
+                                range.Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+                            }
+
+                            table0.ShowHeader = true;
+                            table0.ShowFilter = true;
+                            table0.ShowRowStripes = false;
+                            worksheet.Cells.AutoFitColumns(0);
+
+                            ret.byteExcel = package.GetAsByteArray();
+                            ret.namaFile = "Data_Pembeli_" + drtgl + "_To_" + sdtgl + ".xlsx";
+                        }
+                        else
+                        {
+                            ret.Errors.Add("Tidak ada data pembeli");
+                        }
+                    }
                 }
 
             }
