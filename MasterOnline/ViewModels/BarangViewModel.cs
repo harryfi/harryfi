@@ -57,6 +57,17 @@ namespace MasterOnline.ViewModels
         public string CUST { get; set; }
     }
 
+    public class listBrgMaster
+    {
+        public string BRG { get; set; }
+        public string NAMA { get; set; }
+        public string NAMA2 { get; set; }
+        public double HJUAL { get; set; }
+        public string KET_SORT1 { get; set; }
+        public string KET_SORT2 { get; set; }
+        public string LINK_GAMBAR_1 { get; set; }
+        public DateTime? Tgl_Input { get; set; }
+    }
     public class BarangViewModel
     {
         public STF02 Stf02 { get; set; }

@@ -18,7 +18,7 @@
             username = dataSession?.Account.Username;
         }
     }*@
-@model PagedList.IPagedList<STF02>
+@model PagedList.IPagedList<listBrgMaster>
 @{
     string currentFilter = ViewBag.CurrentFilter;
     string currentSort = ViewBag.CurrentSort;
@@ -117,7 +117,8 @@
         @Html.PagedListPager(Model, page => Url.Action("RefreshTableBarang", new
    {
        page,
-       search = ViewData["searchParam"]
+       search = ViewData["searchParam"],
+       take = ViewData["takeRecord"]
    }),
         new PagedListRenderOptions
         {

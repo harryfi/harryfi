@@ -233,15 +233,29 @@
                         <div class="col-lg-8 col-sm-6">
                             <div class="pull-right">
                                 @*<button type="button" class="btn btn-default" data-style="expand-right">
-                            <span>Refresh</span>
-                        </button>*@
+            <span>Refresh</span>
+        </button>*@
                                 @*<button type="button" class=" btn btn-default" data-style="expand-right">
-                            <span>Import Persediaan Barang</span>
-                        </button>
-                        <button type="button" class=" btn btn-default" data-style="expand-right">
-                            <span>Import Harga</span>
-                        </button>*@
-                                <button class="btn btn-primary btn_tambah_data" id="tambah_barang">Tambah Baru</button>
+            <span>Import Persediaan Barang</span>
+        </button>
+        <button type="button" class=" btn btn-default" data-style="expand-right">
+            <span>Import Harga</span>
+        </button>*@
+                                <div class="col-lg-6 col-sm-6">
+                                    <button class="btn btn-primary btn_tambah_data" id="tambah_barang">Tambah Baru</button>
+                                </div>
+                                <div class="col-lg-6 col-sm-6">
+                                    <div class="text" style="">
+                                        <select class="form-control" id="TakeRecord" name="TakeRecord" required="required">
+                                            @*
+        <option>--Pilih--</option>*@
+                                            <option value="10" selected>10</option>
+                                            <option value="20">20</option>
+                                            <option value="50">50</option>
+                                            <option value="100">100</option>
+                                        </select>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -570,6 +584,10 @@
 
             refreshTableBarang();
 
+            $('#TakeRecord').change(function () {
+                //searchTablePesananSudahDibayar();
+                refreshTableBarang("1");
+            });
             $('#barang-tab').click(function () {
                 if (!$('#barang-tab').parent().hasClass("active"))
                 {
@@ -653,8 +671,9 @@
 
         });
         function searchTableBarang(){
-            var $link = '@Html.Raw(Url.Action("RefreshTableBarang", "Manage", new { search = "replaceSearch" }))';
+            var $link = '@Html.Raw(Url.Action("RefreshTableBarang", "Manage", new { take = "replaceLastTake", search = "replaceSearch" }))';
             $link = $link.replace("replaceSearch", encodeURIComponent($('#search_barang').val()));
+            $link = $link.replace("replaceLastTake", encodeURIComponent($('#TakeRecord').val()));
 
             $.ajax({
                 type: "GET",
@@ -676,10 +695,17 @@
                 }
             });
         }
-        function refreshTableBarang() {
-            var $link = '@Html.Raw(Url.Action("RefreshTableBarang", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
+        function refreshTableBarang($pageAwal) {
+            var $setPage = "";
+            if ($pageAwal != undefined) {
+                $setPage = $pageAwal;
+            } else {
+                $setPage = $('#txt_last_page').val();
+            }
+            var $link = '@Html.Raw(Url.Action("RefreshTableBarang", "Manage", new { take = "replaceLastTake", page = "replaceLastPage", search = "replaceSearch" }))';
             $link = $link.replace("replaceSearch", encodeURIComponent($('#search_barang').val()));
-            $link = $link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page').val()));
+            $link = $link.replace("replaceLastPage", encodeURIComponent($setPage));
+            $link = $link.replace("replaceLastTake", encodeURIComponent($('#TakeRecord').val()));
 
             $.ajax({
                 type: "GET",
