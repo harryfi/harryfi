@@ -1,0 +1,1192 @@
+﻿@using MasterOnline.ViewModels
+
+@{
+    ViewBag.Title = "Sinkronisasi Barang";
+    Layout = "~/Views/Shared/_LayoutManage.cshtml";
+
+}
+@section styles
+{
+    <link href="~/Content/selectize.css" rel="stylesheet" />
+    <link href="~/Content/build/css/selectivity-jquery.min.css" rel="stylesheet" />
+    <style>
+        #statusBorder {
+            position: relative;
+            height: 5px;
+            width: 100px;
+            border: solid 1px gray;
+            display: none;
+        }
+
+        #statusFill {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0px;
+            background-color: Blue;
+            height: 5px;
+        }
+
+        [data-tip] {
+            position: relative;
+        }
+
+            [data-tip]:before {
+                content: '';
+                /* hides the tooltip when not hovered */
+                display: none;
+                content: '';
+                border-left: 5px solid transparent;
+                border-right: 5px solid transparent;
+                border-bottom: 5px solid #1a1a1a;
+                position: absolute;
+                top: 30px;
+                left: 35px;
+                z-index: 8;
+                font-size: 0;
+                line-height: 0;
+                width: 0;
+                height: 0;
+            }
+
+            [data-tip]:after {
+                display: none;
+                content: attr(data-tip);
+                position: absolute;
+                top: 35px;
+                left: 0px;
+                padding: 2px 5px;
+                background: #1a1a1a;
+                color: #fff;
+                z-index: 9;
+                font-size: 0.85em;
+                height: auto;
+                line-break: normal;
+                max-width: 200px;
+                line-height: 18px;
+                -webkit-border-radius: 3px;
+                -moz-border-radius: 3px;
+                border-radius: 3px;
+                white-space: normal;
+                word-wrap: normal;
+            }
+
+            [data-tip]:hover:before,
+            [data-tip]:hover:after {
+                display: block;
+            }
+
+        #Stf02_Deskripsi {
+            resize: vertical;
+            height: 100px;
+            max-height: 150px;
+        }
+
+        .satuan {
+            text-align: left !important;
+            font-size: 10px;
+        }
+
+        #hapus_label {
+            color: orange;
+            font-weight: bold;
+        }
+
+        .foto_produk_section {
+            padding: 10px;
+        }
+
+            .foto_produk_section > .box_upload {
+                width: 250px;
+                height: 250px;
+                border: dashed 1.5px #bbb;
+                border-radius: 10px;
+                background-color: #f7f7f7;
+                background-image: url('');
+                text-align: center;
+                display: table;
+                margin: 0 auto;
+                cursor: pointer;
+            }
+
+        .box_upload > .box_upload_placeholder {
+            color: #ccc;
+            font-size: 20px;
+            display: table-cell;
+            vertical-align: middle;
+        }
+
+        .btn_hapus_foto_produk {
+            position: absolute;
+            bottom: 15px;
+            left: 48px;
+        }
+
+        /* =============== Checkbox ================ */
+
+        /* Customize the label (the container) */
+        .checkbox-container {
+            display: block;
+            position: relative;
+            /*padding-left: 35px;*/
+            margin-top: 4px;
+            cursor: pointer;
+            font-size: 11px;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+            /* Hide the browser's default checkbox */
+            .checkbox-container input {
+                position: relative;
+                opacity: 100;
+                cursor: pointer;
+                display: none;
+            }
+
+        /* Create a custom checkbox */
+        .checkmark {
+            position: absolute;
+            top: 0;
+            left: 18px;
+            height: 25px;
+            width: 25px;
+            background-color: #eee;
+            border: solid 1px #ccc;
+        }
+
+        /* On mouse-over, add a grey background color */
+        .checkbox-container:hover input ~ .checkmark {
+            background-color: #ccc;
+        }
+
+        /* When the checkbox is checked, add a blue background */
+        .checkbox-container input:checked ~ .checkmark {
+            background-color: #2196F3;
+        }
+
+        /* Create the checkmark/indicator (hidden when not checked) */
+        .checkmark:after {
+            content: "";
+            position: absolute;
+            display: none;
+        }
+
+        /* Show the checkmark when checked */
+        .checkbox-container input:checked ~ .checkmark:after {
+            display: block;
+        }
+
+        /* Style the checkmark/indicator */
+        .checkbox-container .checkmark:after {
+            left: 9px;
+            top: 5px;
+            width: 6px;
+            height: 10px;
+            border: solid white;
+            border-width: 0 3px 3px 0;
+            -webkit-transform: rotate(45deg);
+            -ms-transform: rotate(45deg);
+            transform: rotate(45deg);
+        }
+    </style>
+}
+
+<div class="row">
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="row barang_table_section">
+            <div class="col-lg-6 col-sm-6 col-md-6">
+                <div class="col-md-2 col-sm-2 col-xs-2" style="padding-top:5px;">
+                    <label>Pilih Akun</label>
+                </div>
+                <div class="col-md-10 col-sm-10 col-xs-10">
+                    <input value="" data-val="true" id="promptHiddenField" name="promptHiddenField" type="hidden" maxlength="10">
+                    <div class="input-group text">
+                        <table>
+                            <tr>
+                                <td>
+                                    <input maxlength="10" value="" class="form-control" disabled="disabled" id="txtCustomer" name="txtCustomer" type="text">
+                                </td>
+                                <td>
+                                    <span class="input-group-btn">
+                                        <button class="btn btn-default" id="btnPromptCust" type="button" style="height: 34px;" onclick="PromptCustomer();">
+                                            <span class="glyphicon glyphicon-option-horizontal"></span>
+                                        </button>
+                                    </span>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 col-sm-6 col-md-6">
+                <div class="pull-right">
+                    <label onclick="MenuLama();" style="margin-right:20px;"><u>kembali ke menu sinkronisasi lama</u></label>
+                    <button class="btn btn-primary" onclick="CekCustSimpan();">Simpan</button>
+                    <button class="btn btn-primary" id="get_data" onclick="$('#konfTarikData').modal('show'); setModalMode(2);">Ambil data dari Marketplace</button>
+                </div>
+            </div>
+        </div>
+        <div class="barang_table_section">
+            <div class="col-lg-8 col-md-8 col-sm-8 col-xs-8">
+                <div id="divSearch2">
+                    <div class="row" style="padding-top:20px;">
+                        <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3" style="background-color: #ffe8e8;border:solid; width: 20px; height: 20px; margin-right: 15px; margin-left: 15px;"></div>
+                        <div><label style="font-size:15px;">adalah barang induk</label></div>
+                    </div>
+                    <div class="row barang_table_section" style="padding-left:10px;">
+                        <div class="input-group col-lg-12 col-sm-12 col-md-12">
+                            <input id="search_barang2" type="text" class="form-control" placeholder="Pencarian">
+                            <span class="input-group-btn">
+                                <button type="button" id="search_barang_click2" class="btn btn-primary">
+                                    <i class="fa fa-search"></i>
+                                </button>
+                            </span>
+                            <div class=" col-lg-5 col-sm-5 col-md-5 pull-right">
+                                <div class="text">
+                                    <select class="form-control" id="TakeRecord" name="TakeRecord" required="required">
+                                        @*<option value="10" selected>10</option>*@
+                                        <option value="100" selected>100</option>
+                                        <option value="200">200</option>
+                                        <option value="500">500</option>
+                                        <option value="1000">1000</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row" @*style="margin-top: 5px;*@>
+                    <div id="lblPleasewait" class="text-center" style="display:none">
+                        <label>Proses sinkronisasi sedang berlangsung, Dimohon tunggu beberapa saat.</label>
+                    </div>
+                    <div id="loading_barang_tab" class="text-center" style="display: none">
+                        <img src="~/Content/Images/spinner.gif" width="100" />
+                    </div>
+                    <div class="col-sm-12 barang_table_section" id="table-sinkro-barang" style="overflow-y:scroll; height:930px;">
+                    </div>
+                </div>
+                <div class="row" id="info_record" style="text-align:center;">
+                    <br />
+                    <label id="txtInfo" style="text-align:center"></label>
+                    <br />
+                    <label id="txtInfo2" style="text-align:center"></label>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
+                <div id="divSearch" style="display:none;">
+                    <div style="padding-top: 20px">
+                        <label style="font-size:15px;">Rekomendasi : Master Barang Master Online</label>
+                    </div>
+                    <div class="row barang_table_section" style="padding-left:10px;">
+                        <div class="input-group col-sm-11 col-md-11">
+                            <input id="search_barang" type="text" class="form-control" placeholder="Pencarian">
+                            <span class="input-group-btn">
+                                <button type="button" id="search_barang_click" class="btn btn-primary">
+                                    <i class="fa fa-search"></i>
+                                </button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div id="form-rekomendasi">
+
+                </div>
+            </div>
+        </div>
+
+        <div class="row barang_editor_section" style="display: none;">
+            <div class="col-lg-12">
+                <div class="page-editor">
+                    <h2 class="editor-title">Barang</h2>
+                    <span class="title-accent"></span>
+                    <button id="close-editor-1" type="button" class="pull-right page-close">
+                        <span class="close-btn thick"></span>
+                    </button>
+                    @if (ViewData.ModelState.Any(x => x.Value.Errors.Any()))
+                    {
+                        foreach (var modelError in ViewData.ModelState.SelectMany(x => x.Value.Errors))
+                        {
+                            <div class="alert alert-danger">
+                                <span class="message-error">@modelError.ErrorMessage</span>
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                        }
+                    }
+                    @using (Html.BeginForm("UploadSatuBarang", "Manage", FormMethod.Post, new { enctype = "multipart/form-data", id = "form-barang" }))
+                    {
+                        <div id="form-partial">
+                            @*@Html.Partial("FormBarangUploadsPartial")*@
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="konfTarikData" tabindex="-1" role="dialog" aria-labelledby="konfTarikDataLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="konfTarikDataLabel">Konfirmasi</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-center">
+                    <h4 id="txtDeskripsi">Apakah Anda ingin mengambil semua data barang dari Akun ini?</h4>
+                </div>
+                <div class="row text-center">
+                    <div class="col-md-3 col-sm-3 col-xs-12"></div>
+                    <div class="col-md-6 col-sm-6 col-xs-12">
+                        <div class="input-group text">
+                            <table>
+                                <tr>
+                                    <td>
+                                        <input maxlength="10" value="" class="form-control" disabled="disabled" id="txtCustomer2" name="txtCustomer2" type="text">
+                                    </td>
+                                    <td>
+                                        <span class="input-group-btn">
+                                            <button class="btn btn-default" type="button" style="height: 34px;" onclick="PromptCustomer();">
+                                                <span class="glyphicon glyphicon-option-horizontal"></span>
+                                            </button>
+                                        </span>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="btnGetDataBrg" class="btn btn-success" onclick="GetDataBrgWithRecordConfirm();exGetData = 0;">Ya</button>
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="konfProsesSinkro" tabindex="-1" data-backdrop="static" data-keyboard="false" role="dialog" aria-labelledby="konfProsesSinkroLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="konfProsesSinkroLabel">Konfirmasi</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-center">
+                    <h4>Apakah Anda ingin memulai proses sinkronisasi?</h4>
+                </div>
+                <div class="row text-center">
+                    <div id="div_with_pbar" class="col-md-12" style="margin-bottom:20px;"></div>
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="btnProsesSinkroBrg" class="btn btn-success" onclick="startSyncAll();showProgressBar();">Ya</button>
+                <button type="button" id="btnCancelSinkroBrg" class="btn btn-danger" onclick="refreshTableBarangSinkro();" data-dismiss="modal">Tidak</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalError" tabindex="-1" role="dialog" aria-labelledby="modalErrorLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="modalErrorLabel">List Error</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-center">
+                    <label id="lblListError"></label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script src="~/Content/selectize.js" type="text/javascript"></script>
+    <script src="~/Content/build/js/selectivity-jquery.min.js" type="text/javascript"></script>
+    <script src="~/Scripts/jquery.ajax-progress.js"></script>
+    <script type="text/javascript">
+        function MenuLama() {
+            //window.location.href = @Url.Action("master/uploadbarang", "Manage");
+            window.location.href = "@Url.Action("master/uploadbarang", "Manage")";
+
+        };
+
+        function Initialize() {
+            $('input[name="select_all"]').off('click').on('click',
+                function () {
+                    var attr = $(this).attr('checked');
+
+                    if (typeof attr !== typeof undefined && attr !== false) {
+                        $('input[name="data-1"]').removeAttr('checked');
+                        $('input[name="data-2"]').removeAttr('checked');
+                    } else {
+                        $('input[name="data-1"]').attr('checked', 'checked');
+                        $('input[name="data-2"]').attr('checked', 'checked');
+                    }
+                });
+
+            getKategori();
+            getMerk();
+
+            $("#Stf02_HJUAL").off('focus').focus(function () {
+                $(this).val(convertToAngka($(this).val()));
+            });
+
+            $("#Stf02_HJUAL").off('keydown').on('keydown',
+                function (e) {
+                    if ($.inArray(e.keyCode, [46, 8, 9, 27, 13, 110, 190]) !== -1 ||
+                        // Allow: Ctrl+A, Command+A
+                        (e.keyCode === 65 && (e.ctrlKey === true || e.metaKey === true)) ||
+                        // Allow: home, end, left, right, down, up
+                        (e.keyCode >= 35 && e.keyCode <= 40)) {
+                        // let it happen, don't do anything
+                        return;
+                    }
+                    // Ensure that it is a number and stop the keypress
+                    if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+                        e.preventDefault();
+                    }
+                });
+
+            $("#Stf02_HJUAL").off('change').on('change', function () {
+                if ($(this).val() == '') {
+                    $(this).val(0);
+                }
+                $(this).val(convertToAngka($(this).val()));
+
+                var $input = $(this).val();
+                var $rupiah = convertToRupiah($input);
+                $(this).val($rupiah);
+
+                //applyHargaPerMarket($rupiah);
+            });
+
+        }
+        $(document).ready(function () {
+            $('#search_barang').keypress(function (e) {
+                var key = e.which;
+                if (key == 13)// the enter key code
+                {
+                    RefreshTableBarangSinkroMaster('');
+                    return false;
+                }
+            });
+            $('#search_barang_click').click(function () {
+                RefreshTableBarangSinkroMaster('');
+            });
+
+            $('#TakeRecord').change(function () {
+                //searchTablePesananSudahDibayar();
+                if ($('#promptHiddenField').val() != "") {
+                    refreshTableBarangSinkro("1");
+                }
+            });
+
+            $('#search_barang2').keypress(function (e) {
+                var key = e.which;
+                if (key == 13)// the enter key code
+                {
+                    refreshTableBarangSinkro();
+                    return false;
+                }
+            });
+            $('#search_barang_click2').click(function () {
+                refreshTableBarangSinkro();
+            });
+            $('#close-editor-1').off('click').on('click', function () {
+                $('#close-editor-1')[0].disabled = true;
+                $('.barang_table_section').show();
+                $('.barang_editor_section').hide();
+                refreshTableBarangSinkro();
+            });
+        });
+        function PromptCustomer() {
+            showPromptCustomerTextBoxWindow();
+        }
+
+        function setModalMode(value) {
+            //$('#btnDeleteAll').hide();
+            //$('#btnSyncAll').hide();
+            $('#btnGetDataBrg').hide();
+            //if (value == 1) {
+            //    $('#btnDeleteAll').show();
+            //    document.getElementById('txtDeskripsi').innerText = 'Apakah Anda ingin menghapus semua data barang yang belum di sinkronisasi dari akun ini?';
+            //}
+            //else if (value == 3) {
+            //    $('#btnSyncAll').show();
+            //    document.getElementById('txtDeskripsi').innerText = 'Apakah Anda ingin mengupdate semua data barang dari Akun ini ke Master Online?';
+            //}
+            //else
+                if (value == 2) {
+                $('#btnGetDataBrg').show();
+                document.getElementById('txtDeskripsi').innerText = 'Apakah Anda ingin mengambil semua data barang dari Akun ini?';
+            }
+        }
+        function showPromptCustomerTextBoxWindow() {
+            var $link = '@Url.Action("PromptCustomer", "Manage")';
+            window.open($link, "popupWindow", "width=600, height=400, scrollbars=yes");
+        }
+        function afterPromptDelTempCust(val, val2) {
+            $('#promptHiddenField').val(val);
+            //$('#promptHiddenField2').val(val3);
+            $('#txtCustomer').val(val2);
+            $('#txtCustomer2').val(val2);
+
+            refreshTableBarangSinkro();
+        }
+        var currentBrg = "";
+        function pilihBrg(recnum, nama) {
+            currentBrg = recnum;
+            $('#search_barang').val(nama);
+            RefreshTableBarangSinkroMaster(recnum);
+            $('.btn-success').addClass('btn-primary').removeClass('btn-success');
+            $('#btnPilih_' + recnum).addClass('btn-success');
+        }
+        function pilihBrgHapus(recnum, nama, brg) {
+            if(confirm("Hapus Link barang : " + nama + " \ndengan kode barang : " + brg))
+            {
+                currentBrg = "";
+                $('.btn-success').addClass('btn-primary').removeClass('btn-success');
+                var $link = '@Html.Raw(Url.Action("HapusDraftSinkro", "Manage", new { cust = "replaceCust"}))';
+                $link = $link.replace("replaceCust", encodeURIComponent($('#promptHiddenField').val()));
+                $link += "&recnum=" + recnum;
+
+                $.ajax({
+                    type: "GET",
+                    url: $link,
+                    beforeSend: function () {
+                    },
+                    success: function (response) {
+                        refreshTableBarangSinkro();
+                    },
+                    error: function (xhr, status, error) {
+                        console.log(error);
+                    }
+                });
+            }
+        }
+        function RefreshTableBarangSinkroMaster(recnum) {
+
+            var $link = '@Html.Raw(Url.Action("RefreshTableBarangSinkroMaster", "Manage", new { cust = "replaceCust", page = "replaceLastPage", search = "replaceLastSearch" }))';
+            $link = $link.replace("replaceCust", encodeURIComponent($('#promptHiddenField').val()));
+            $link = $link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page_master').val()));
+            $link = $link.replace("replaceLastSearch", encodeURIComponent($('#search_barang').val()));
+            if (recnum != "") {
+                $link += "&recnum=" + recnum;
+            }
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#form-rekomendasi').hide();
+                    //$('#loading_barang_tab').show();
+                    //$('#loading_uploadbarang_tab').show();
+                },
+                success: function (response) {
+                    $('#divSearch').show();
+                    $('#form-rekomendasi').html(response);
+                    $('#form-rekomendasi').show();
+                    //$('#loading_barang_tab').hide();
+                    //$('#table-sinkro-barang').show();
+
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+        function refreshTableBarangSinkro($pageAwal) {
+            currentBrg = "";
+            $('#divSearch').hide();
+            $('#form-rekomendasi').hide();
+            var $setPage = "";
+            if ($pageAwal != undefined) {
+                $setPage = $pageAwal;
+            } else {
+                $setPage = $('#txt_last_page').val();
+            }
+            var $link = '@Html.Raw(Url.Action("RefreshTableBarangSinkro", "Manage", new { search = "replaceLastSearch", take = "replaceLastTake", cust = "replaceCust", page = "replaceLastPage" }))';
+            $link = $link.replace("replaceCust", encodeURIComponent($('#promptHiddenField').val()));
+            $link = $link.replace("replaceLastPage", encodeURIComponent($setPage));
+            $link = $link.replace("replaceLastTake", encodeURIComponent($('#TakeRecord').val()));
+            $link = $link.replace("replaceLastSearch", encodeURIComponent($('#search_barang2').val()));
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#table-sinkro-barang').hide();
+                    $('#loading_barang_tab').show();
+                    //$('#loading_uploadbarang_tab').show();
+                },
+                success: function (response) {
+                    $('#table-sinkro-barang').html(response);
+                    $('#loading_barang_tab').hide();
+                    $('#table-sinkro-barang').show();
+
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+        function pilihBrgMaster(value) {
+
+            var $link = '@Html.Raw(Url.Action("SetMappingSinkro", "Manage"))';
+            $link += "?recnumbrg=" + value + "&currenttemp=" + currentBrg + "&cust=" + encodeURIComponent($('#promptHiddenField').val());
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    //$('#table-sinkro-barang').hide();
+                    //$('#loading_barang_tab').show();
+                    //$('#loading_uploadbarang_tab').show();
+                },
+                success: function (response) {
+                    //$('#table-sinkro-barang').html(response);
+                    //$('#loading_barang_tab').hide();
+                    //$('#table-sinkro-barang').show();
+                    if (response.error != "") {
+                        alert(response.error);
+                    }
+                    else {
+                        if (response.linkrecnum != null) {
+                            // remove other link
+                            response.linkrecnum.forEach(hapusBrgLain);
+                        }
+                        $('#txtKodeBrgMO_' + currentBrg).text(response.currentBrg);
+                        $('#txtGambarBrgMO_' + currentBrg).html('');
+                        $('#txtGambarBrgMO_' + currentBrg).append('<img width="50" height="50" src="' + response.image + '" />');
+                        $('#txtNamaBrgMO_' + currentBrg).text(response.namaBrg);
+
+                        $('#btnPilih_' + currentBrg).hide();
+                        $('#btnHapus_' + currentBrg).show();
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+        function hapusBrgLain(val) {
+            $('#txtKodeBrgMO_' + val).text('');
+            $('#txtGambarBrgMO_' + val).html('');
+            $('#txtNamaBrgMO_' + val).text('');
+            $('#btnPilih_' + val).show();
+            $('#btnHapus_' + val).hide();
+        }
+        
+        function CekCustSimpan() {
+            if ($('#promptHiddenField').val() == null || $('#promptHiddenField').val() == "") {
+                alert('Anda belum memilih Toko');
+            } else {
+                $('#konfProsesSinkro').modal('show');
+            }
+        }
+        function GetDataBrgWithRecordConfirm() {
+            if ($('#promptHiddenField').val() == null || $('#promptHiddenField').val() == "") {
+                alert('Anda belum memilih Toko');
+            } else {
+                if (confirm("Fungsi tarik data barang ini akan menghapus semua draft sinkronisasi pada akun ini. Anda yakin?")) {
+                    GetDataBrgWithRecord(0, 0, 1, 0);
+                }
+            }
+        }
+        var exGetData = 0;
+        var namaFileLog = '';
+        var lastPage = 0;
+        var loop = 1;
+        var pageinfo_shopify = '';
+        function GetDataBrgWithRecord(page, recordCount, statBL, totalData) {
+            if ($('#promptHiddenField').val() == null || $('#promptHiddenField').val() == "" ) {
+                alert('Anda belum memilih Toko');
+            } else {
+                 var link = '@Url.Action("ImportDataMP", "Manage")';
+                link += '?cust=' + encodeURIComponent($('#promptHiddenField').val()) + '&page=' + encodeURIComponent(page) + '&recordCount='
+                    + encodeURIComponent(recordCount) + '&statBL=' + encodeURIComponent(statBL) + '&totalData=' + encodeURIComponent(totalData) + '&pageinfo=' + encodeURIComponent(pageinfo_shopify);
+                $.ajax({
+                    type: "GET",
+                    url: link,
+                    timeout: 0,
+                    beforeSend: function () {
+                        $('#table-sinkro-barang').hide();
+                        $('#lblPleasewait').show();
+                        $('#loading_barang_tab').show();
+                        $('#info_record').show();
+                    },
+                    success: function (response) {
+                        lastPage = page;
+                        if (response.Errors == null || response.Errors.length == 0) {
+                            if (response.RecordCount != null) {
+                                document.getElementById('txtInfo').innerText = 'Jumlah data berhasil tersimpan ke Master Online : ' + response.RecordCount;
+                                document.getElementById('txtInfo2').innerText = 'Jumlah data yang didapat dari marketplace : ' + response.totalData;
+
+                            }
+                            pageinfo_shopify = response.pageinfodhopify;
+                            if (response.exception == 1)
+                                exGetData = 1;
+                            if (response.Recursive) {
+                                if (response.BLProductActive == 1) {
+                                    GetDataBrgWithRecord(response.Page, response.RecordCount, 1, response.totalData);
+                                } else {
+                                    GetDataBrgWithRecord(response.Page, response.RecordCount, 0, response.totalData);
+                                }
+                            } else {
+                                var msg = "Jumlah data berhasil tersimpan :" + response.RecordCount + '\nJumlah data yang didapat dari marketplace : ' + response.totalData;
+                                if (exGetData == 1) {
+                                    msg += '\nAda data barang yang tidak masuk ke MO. Silahkan lakukan pengambilan data lagi. \nJika anda masih mendapat pesan error ini setelah mencoba lagi, silahkan hubungi tim support MO.';
+                                }
+                                alert(msg);
+                                refreshTableBarangSinkro();
+                                $('#lblPleasewait').hide();
+                                $('#info_record').hide();
+                                document.getElementById('txtInfo').innerText = 'Jumlah data berhasil tersimpan ke Master Online : 0';
+                                document.getElementById('txtInfo2').innerText = 'Jumlah data yang didapat dari marketplace : 0';
+                            }
+                        } else {
+                            alert(response.Errors);
+                            $('#lblPleasewait').hide();
+                            $('#loadingGetBarang').modal('hide');
+                            $('#table-sinkro-barang').show();
+                            $('#info_record').hide();
+                        }
+
+
+                    },
+                    error: function (xhr, status, error) {
+                        console.log(error);
+                        if (xhr.status == 524) {
+                            if (lastPage == page) {
+                                loop = loop + 1;
+                            } else {
+                                loop = 1;
+                            }
+                            if (loop <= 3) {
+                                GetDataBrgWithRecord(page, recordCount, statBL, totalData);
+                            } else {
+                                alert('Terdapat Error saat mengambil data barang marketplace ini.\nSilahkan hubungi tim support MO');
+                                refreshTableBarangSinkro();
+                                $('#lblPleasewait').hide();
+                                $('#info_record').hide();
+                                $('#table-sinkro-barang').show();
+                            }
+                        }
+                    }
+                });
+                $('#konfTarikData').modal('hide');
+                $('#konfSyncAll').modal('hide');
+            }
+
+        }
+
+
+        function editBarang() {
+            var link = '@Url.Action("EditBarangUpload", "Manage"@*, new { brg_mp = "replaceId" }*@)';
+            //link = link.replace("replaceId", idBarang);
+            link += '?recnum=' + encodeURIComponent(currentBrg) + '&cust=' + encodeURIComponent($('#promptHiddenField').val());
+            $.ajax({
+                type: "GET",
+                url: link,
+                beforeSend: function () {
+                    $('#loading_spinner').show();
+                },
+                success: function (response) {
+                    //$('#table-upload-barang-partial').hide();
+                    $('#loading_spinner').hide();
+                    $('.barang_table_section').hide();
+                    $('.barang_editor_section').show();
+                    $('#form-partial').html(response);
+                    $('#txtBrg').val($('#TempBrg_SELLER_SKU').val()).change();
+                    $('#txtBrgInduk').val($('#TempBrg_KODE_BRG_INDUK').val());
+                    initRequired();
+                    $('#close-editor-1')[0].disabled = false;
+                    /*$('#loading_uploadbarang_tab').hide();*/
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                    $('.barang_table_section').show();
+                    $('.barang_editor_section').hide();
+                    $('#loading_spinner').hide(); //$('#loading_uploadbarang_tab').hide();
+                }
+            });
+        }
+        function getKategori() {
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetKategoriBarang", "Manage")',
+                contentType: 'application/json',
+                cache: false,
+                success: function (data) {
+                    var listKategori = [];
+
+                    $.each(data,
+                        function (i, item) {
+                            listKategori[i] = {
+                                id: item.KODE,
+                                text: item.KET
+                            };
+                        });
+
+                    var kategoriSelect = $('#KATEGORI').selectize({
+                        valueField: 'id',
+                        searchField: 'text',
+                        options: listKategori,
+                        onChange: function (value) {
+                            $('#Stf02_Sort1').val(value);
+                            $('#Stf02_KET_SORT1').val($("#KATEGORI option:selected").text());
+                        }
+                    });
+
+                    kategoriSelect[0].selectize.setValue($('#Stf02_Sort1').val());
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
+
+        function getMerk() {
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetMerkBarang", "Manage")',
+                contentType: 'application/json',
+                cache: false,
+                success: function (data) {
+                    var listMerk = [];
+
+                    $.each(data,
+                        function (i, item) {
+                            listMerk[i] = {
+                                id: item.KODE,
+                                text: item.KET
+                            };
+                        });
+
+                    var merkSelect = $('#MERK').selectize({
+                        valueField: 'id',
+                        searchField: 'text',
+                        options: listMerk,
+                        onChange: function (value) {
+                            $('#Stf02_Sort2').val(value);
+                            $('#Stf02_KET_SORT2').val($("#MERK option:selected").text());
+                        }
+                    });
+
+                    merkSelect[0].selectize.setValue($('#Stf02_Sort2').val());
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
+
+        function AutoCompleteBrg() {
+            var link = '@Url.Action("AutoCompleteBrg", "Manage"@*, new { brg = "replaceId", brg_mp = "replaceBrgMp" }*@)';
+            //link = link.replace("replaceId", $('#txtBrg').val());
+            //link = link.replace("replaceBrgMp", $('#TempBrg_BRG_MP').val());
+            link += '?brg=' + encodeURIComponent($('#txtBrg').val()) + '&brg_mp=' + encodeURIComponent($('#TempBrg_BRG_MP').val()) + '&cust=' + encodeURIComponent($('#promptHiddenField').val());
+            $.ajax({
+                type: "GET",
+                url: link,
+                success: function (response) {
+                    if (response != null) {
+                        if (response.Errors == null) {
+                            setFormBrg(response);
+                            //$('#form-partial').html(response);
+                            //getFotoProduk();
+                            //if (response.Stf02.Sort1 != null) {
+                            //    document.getElementById('statBarang').innerText = ' Link dengan barang yang sudah ada';
+                            //} else {
+                            //    document.getElementById('statBarang').innerText = ' Create barang baru';
+                            //}
+                        } else {
+                            alert(response.Errors[0]);
+                        }
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        function setFormBrg(data) {
+            if (data != null) {
+                $('#Stf02_NAMA').val(data.NAMA);
+                $('#Stf02_NAMA2').val(data.NAMA2);
+                $('#Stf02_STN2').val(data.STN2);
+                $('#Stf02_MINI').val(data.MINI);
+                $('#Stf02_MAXI').val(data.MAXI);
+                if (data.Deskripsi != '') {
+                    $('#Stf02_Deskripsi').val(data.Deskripsi);
+                    CKEDITOR.instances['Stf02_Deskripsi'].setData(data.Deskripsi);
+                }
+                $('#Stf02_BERAT').val(data.BERAT);
+                $('#Stf02_PANJANG').val(data.PANJANG);
+                $('#Stf02_LEBAR').val(data.LEBAR);
+                $('#Stf02_TINGGI').val(data.TINGGI);
+                $('#Stf02_HJUAL').val(convertToRupiah(data.HJUAL));
+                $('#Stf02_BRG').val(data.BRG);
+                if (data.LINK_GAMBAR_1 != '')
+                    $('#hidden_url_gambar_1').val(data.LINK_GAMBAR_1);
+                if (data.LINK_GAMBAR_2 != '')
+                    $('#hidden_url_gambar_2').val(data.LINK_GAMBAR_2);
+                if (data.LINK_GAMBAR_3 != '')
+                    $('#hidden_url_gambar_3').val(data.LINK_GAMBAR_3);
+                if (data.LINK_GAMBAR_4 != '')
+                    $('#hidden_url_gambar_4').val(data.LINK_GAMBAR_4);
+                if (data.LINK_GAMBAR_5 != '')
+                    $('#hidden_url_gambar_5').val(data.LINK_GAMBAR_5);
+                getFotoProduk();
+                if (data.Sort1 != null) {
+                    //$('#KATEGORI')[0].selectize.setValue(data.Sort1, true);
+                    $('#Stf02_Sort1').val(data.Sort1);
+                    //$('#MERK')[0].selectize.setValue(data.Sort2, true);
+                    $('#Stf02_Sort2').val(data.Sort2);
+
+                }
+                //else {
+                //    document.getElementById('statBarang').innerText = 'Kode Barang belum ada\nBuat barang baru';
+                //}
+                if (data.ID > 0) {
+                    document.getElementById('statBarang').innerText = 'Kode Barang sudah ada dan akan\nDi-Link dengan barang ini.';
+                } else {
+                    document.getElementById('statBarang').innerText = 'Kode Barang belum ada\nBuat barang baru';
+                }
+                if ($("#TempBrg_KODE_BRG_INDUK").val() != '') {
+                    if (data.PART != null) {
+                        $('#txtBrgInduk').val(data.PART);
+                        $("#cmbVar").val('1').change();//brg varian
+                    }
+                //change by nurul 16/9/2020, brg multi sku
+                //} else if (data.TYPE == "3" ) {
+                } else if (data.TYPE == "3" || data.TYPE == "6") {
+                //end change by nurul 16/9/2020, brg multi sku
+                    $("#cmbVar").val('0').change();
+                } else if (data.TYPE == "4") {
+                    $("#cmbVar").val('2').change();
+                } else {//default barang varian
+                    $("#cmbVar").val('1').change();
+                }
+            }
+            if ($('#Stf02_Deskripsi').val().includes("extended description")) {
+                CKEDITOR.instances['Stf02_Deskripsi'].setReadOnly(true);
+                $('#extDescShopee').show();
+            }
+            else {
+                CKEDITOR.instances['Stf02_Deskripsi'].setReadOnly(false);
+                $('#extDescShopee').hide();
+            }
+            Initialize();
+        }
+
+        function getFotoProduk() {
+            if ($('#hidden_url_gambar_1').val() != "") {
+                $('#box_upload_1').css({
+                    'background-image': 'url("' + $('#hidden_url_gambar_1').val() + '")',
+                    'background-size': 'cover'
+                });
+                //$('#box_upload_1 span').hide();
+                //$('#btn_hapus_1').show();
+            } else {
+                $('#box_upload_1').css({
+                    'background-image': '',
+                });
+            }
+
+            if ($('#hidden_url_gambar_2').val() != "") {
+                $('#box_upload_2').css({
+                    'background-image': 'url("' + $('#hidden_url_gambar_2').val() + '")',
+                    'background-size': 'cover'
+                });
+                //$('#box_upload_2 span').hide();
+                //$('#btn_hapus_2').show();
+            } else {
+                $('#box_upload_2').css({
+                    'background-image': '',
+                });
+            }
+
+            if ($('#hidden_url_gambar_3').val() != "") {
+                $('#box_upload_3').css({
+                    'background-image': 'url("' + $('#hidden_url_gambar_3').val() + '")',
+                    'background-size': 'cover'
+                });
+                //$('#box_upload_3 span').hide();
+                //$('#btn_hapus_3').show();
+            } else {
+                $('#box_upload_3').css({
+                    'background-image': '',
+                });
+            }
+
+            if ($('#hidden_url_gambar_4').val() != "") {
+                $('#box_upload_4').css({
+                    'background-image': 'url("' + $('#hidden_url_gambar_4').val() + '")',
+                    'background-size': 'cover'
+                });
+                //$('#box_upload_2 span').hide();
+                //$('#btn_hapus_2').show();
+            } else {
+                $('#box_upload_4').css({
+                    'background-image': '',
+                });
+            }
+
+            if ($('#hidden_url_gambar_5').val() != "") {
+                $('#box_upload_5').css({
+                    'background-image': 'url("' + $('#hidden_url_gambar_5').val() + '")',
+                    'background-size': 'cover'
+                });
+                //$('#box_upload_3 span').hide();
+                //$('#btn_hapus_3').show();
+            } else {
+                $('#box_upload_5').css({
+                    'background-image': '',
+                });
+            }
+        }
+
+        function showProgressBar() {
+            $('#btnCancelSinkroBrg').prop('disabled', true);
+            $('#btnProsesSinkroBrg').prop('disabled', true);
+            $('#tbl_progbar').remove();
+            var sHTML = '<table class="col-md-12" id="tbl_progbar">';
+            //for (i = 0; i < rows_selected.length; i++) {
+                sHTML += '<tr>';
+                sHTML += '<td class="col-md-3"><label>Proses Sinkronisasi : </label></td>';
+                sHTML += '<td class="col-md-9"><div class="progress"><div class="progress-bar progress-bar-success progress-bar-striped active" role="progressbar"';
+                sHTML += ' id="pBar_1" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%">0% Complete (success)</div></div>';
+                sHTML += '</td></tr>';
+            //}
+            sHTML += "</table>";
+            $('#div_with_pbar').append(sHTML);
+        }
+
+        function startSyncAll() {
+            var link = '@Url.Action("GetTotalData", "Manage", new { cust = "replaceId" })';
+            link = link.replace("replaceId", encodeURIComponent($('#promptHiddenField').val()));
+            link += "&newprocess=1";
+            var maxPage = "";
+            var dataPerPage = 0;
+            $.ajax({
+                type: "GET",
+                url: link,
+                beforeSend: function () {
+                    //$('#loading_spinner').show();
+                },
+                success: function (response) {
+                    if (response.Errors == null) {
+                        if (response.Total != null && response.Total != "") {
+                            namaFileLog = response.fileName;
+                            if (parseInt(response.Total) > 0) {
+                                var total = parseInt(response.Total);
+                                maxPage = parseInt(total / 50);
+                                dataPerPage = 50;
+                                lastPage = 0;
+                                loop = 1;
+                                UploadAllBrgWithProgressBar(0, maxPage, dataPerPage, 0);
+                            } else {
+                                alert('Tidak ada data barang untuk di update dari Akun ini.\nSilahkan lakukan Ambil data dari Marketplace terlebih dahulu.');
+                                    }
+                        } else {
+                            alert('Tidak ada data barang untuk di update dari Akun ini.\nSilahkan lakukan Ambil data dari Marketplace terlebih dahulu.');
+                            }
+                    } else {
+                        alert(response.Errors);
+                        }
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        function UploadAllBrgWithProgressBar(currentPage, maxPage, dataPerPage, failedToSync) {
+
+            var link = '@Url.Action("ProsesSinkroNewUI", "Manage")';
+            link += "?cust=" + encodeURIComponent($('#promptHiddenField').val()) + "&dataPerPage=" + encodeURIComponent(dataPerPage) + "&skipDataError="
+                + encodeURIComponent(failedToSync) + '&namaFileLog=' + encodeURIComponent(namaFileLog);
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                success: function (response) {
+                    lastPage = currentPage;
+                    if (response.Errors != null) {
+                        if (response.Errors.length > 0) {
+                            response.Errors.forEach(ErrorMessageDialog);
+                        }
+                    }
+                    $('#pBar_1').css('width', parseFloat(((currentPage + 1) / (maxPage + 1) * 100)).toFixed(2) + '%').attr('aria-valuenow', (currentPage + 1) / (maxPage + 1) * 100);
+                    $('#pBar_1').html(parseFloat(((currentPage + 1) / (maxPage + 1) * 100)).toFixed(2) + '% Complete');
+                    if (response.contRecursive == "1") {
+                        if ((currentPage + 1) > maxPage) {
+                            lastPage = 0;
+                            loop = 1;
+
+                            alert('Proses sinkronisasi data barang telah selesai.');
+                            $('#btnCancelSinkroBrg').prop('disabled', false);
+                            $('#btnProsesSinkroBrg').prop('disabled', false);
+                            if (listErrorMessage != "") {
+                                document.getElementById('lblListError').innerText = listErrorMessage;
+                                $('#modalError').modal('show');
+                            }
+
+                        } else {
+                            UploadAllBrgWithProgressBar((currentPage + 1), maxPage, dataPerPage, response.failedRecord);
+                        }
+                    } else {
+                        alert('Proses sinkronisasi data barang telah selesai.');
+                        $('#btnCancelSinkroBrg').prop('disabled', false);
+                        $('#btnProsesSinkroBrg').prop('disabled', false);
+                        if (listErrorMessage != "") {
+                            document.getElementById('lblListError').innerText = listErrorMessage;
+                            $('#modalError').modal('show');
+                        }
+
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                    if (xhr.status == 524) {
+                        if (lastPage == currentPage) {
+                            loop = loop + 1;
+                        } else {
+                            loop = 1;
+                        }
+                        if (loop <= 3) {
+                            UploadAllBrgWithProgressBar(currentPage, maxPage, dataPerPage, failedToSync);
+                        } else {
+                            alert('Terdapat Error saat sinkroisasi data barang.\nSilahkan hubungi tim support MO');
+                            $('#btnCancelSinkroBrg').prop('disabled', false);
+                            $('#btnProsesSinkroBrg').prop('disabled', false);
+                        }
+                    } else {
+                        alert('Proses mengambil data barang dari marketplace telah selesai.');
+                        $('#btnCancelSinkroBrg').prop('disabled', false);
+                        $('#btnProsesSinkroBrg').prop('disabled', false);
+                        if (listErrorMessage != "") {
+                            document.getElementById('lblListError').innerText = listErrorMessage;
+                            $('#modalError').modal('show');
+                        }
+                    }
+                }
+            });
+
+        }
+    </script>
+}
