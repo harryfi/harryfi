@@ -224,7 +224,7 @@
             <div class="col-lg-6 col-sm-6 col-md-6">
                 <div class="pull-right">
                     <label onclick="MenuLama();" style="margin-right:20px;"><u>kembali ke menu sinkronisasi lama</u></label>
-                    <button class="btn btn-primary" onclick="$('#konfProsesSinkro').modal('show');">Simpan</button>
+                    <button class="btn btn-primary" onclick="CekCustSimpan();">Simpan</button>
                     <button class="btn btn-primary" id="get_data" onclick="$('#konfTarikData').modal('show'); setModalMode(2);">Ambil data dari Marketplace</button>
                 </div>
             </div>
@@ -281,7 +281,7 @@
                         <label style="font-size:15px;">Rekomendasi : Master Barang Master Online</label>
                     </div>
                     <div class="row barang_table_section" style="padding-left:10px;">
-                        <div class="input-group col-sm-9 col-md-9">
+                        <div class="input-group col-sm-11 col-md-11">
                             <input id="search_barang" type="text" class="form-control" placeholder="Pencarian">
                             <span class="input-group-btn">
                                 <button type="button" id="search_barang_click" class="btn btn-primary">
@@ -369,7 +369,7 @@
         </div>
     </div>
 </div>
-<div class="modal fade" id="konfProsesSinkro" tabindex="-1" role="dialog" aria-labelledby="konfProsesSinkroLabel">
+<div class="modal fade" id="konfProsesSinkro" tabindex="-1" data-backdrop="static" data-keyboard="false" role="dialog" aria-labelledby="konfProsesSinkroLabel">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -687,6 +687,14 @@
             $('#txtNamaBrgMO_' + val).text('');
             $('#btnPilih_' + val).show();
             $('#btnHapus_' + val).hide();
+        }
+        
+        function CekCustSimpan() {
+            if ($('#promptHiddenField').val() == null || $('#promptHiddenField').val() == "") {
+                alert('Anda belum memilih Toko');
+            } else {
+                $('#konfProsesSinkro').modal('show');
+            }
         }
         function GetDataBrgWithRecordConfirm() {
             if ($('#promptHiddenField').val() == null || $('#promptHiddenField').val() == "") {
