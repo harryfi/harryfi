@@ -112,7 +112,7 @@ namespace MasterOnline.Controllers
 
             if (!string.IsNullOrWhiteSpace(dataAPI.token_expired.ToString()))
             {
-                if (dataAPI.token_expired < DateTime.UtcNow.AddHours(7).AddMinutes(30))
+                if (dataAPI.token_expired < DateTime.UtcNow.AddHours(7).AddMinutes(15))
                 {
                     var cekInDB = ErasoftDbContext.ARF01.Where(m => m.CUST == dataAPI.no_cust).FirstOrDefault();
                     if (cekInDB != null)
@@ -126,7 +126,7 @@ namespace MasterOnline.Controllers
                             dataAPI.token_expired = cekInDB.TOKEN_EXPIRED.Value;
                             dataAPI.token = cekInDB.TOKEN;
 
-                            if (cekInDB.TOKEN_EXPIRED.Value.AddMinutes(-30) > DateTime.UtcNow.AddHours(7))
+                            if (cekInDB.TOKEN_EXPIRED.Value.AddMinutes(-15) > DateTime.UtcNow.AddHours(7))
                             {
                                 return dataAPI;
                             }
@@ -192,6 +192,7 @@ namespace MasterOnline.Controllers
 
                 long seconds = CurrentTimeSecond();
                 DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+                var cekSendEmail = ErasoftDbContext.ARF01.Where(m => m.CUST == dataAPI.no_cust).FirstOrDefault();
 
                 //MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
                 //{
@@ -249,16 +250,20 @@ namespace MasterOnline.Controllers
                             err = sr.ReadToEnd();
                         }
                     }
-                    MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+                    if (cekSendEmail.Sort3_Cust != "1")
                     {
-                        REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssffff"),
-                        REQUEST_ACTION = "Refresh Token Shopee V2", //ganti
-                        REQUEST_DATETIME = milisBack,
-                        REQUEST_ATTRIBUTE_1 = dataAPI.merchant_code,
-                        REQUEST_STATUS = "Failed"
-                    };
-                    currentLog.REQUEST_EXCEPTION = err;
-                    manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, dataAPI, currentLog);
+                        MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+                        {
+                            REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssffff"),
+                            REQUEST_ACTION = "Refresh Token Shopee V2", //ganti
+                            REQUEST_DATETIME = milisBack,
+                            REQUEST_ATTRIBUTE_1 = dataAPI.merchant_code,
+                            REQUEST_ATTRIBUTE_2 = myData,
+                            REQUEST_STATUS = "Failed"
+                        };
+                        currentLog.REQUEST_EXCEPTION = (err == "" ? e.Message : err);
+                        manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, dataAPI, currentLog);
+                    }
                 }
 
                 if (responseFromServer != "")
@@ -303,21 +308,25 @@ namespace MasterOnline.Controllers
                             }
                             else
                             {
-                                MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+                                if (cekSendEmail.Sort3_Cust != "1")
                                 {
-                                    REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssffff"),
-                                    REQUEST_ACTION = "Refresh Token Shopee V2", //ganti
-                                    REQUEST_DATETIME = milisBack,
-                                    REQUEST_ATTRIBUTE_1 = dataAPI.merchant_code,
-                                    REQUEST_STATUS = "Failed"
-                                };
-                                currentLog.REQUEST_EXCEPTION = responseFromServer;
-                                manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, dataAPI, currentLog);
+                                    MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+                                    {
+                                        REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssffff"),
+                                        REQUEST_ACTION = "Refresh Token Shopee V2", //ganti
+                                        REQUEST_DATETIME = milisBack,
+                                        REQUEST_ATTRIBUTE_1 = dataAPI.merchant_code,
+                                        REQUEST_ATTRIBUTE_2 = myData,
+                                        REQUEST_STATUS = "Failed"
+                                    };
+                                    currentLog.REQUEST_EXCEPTION = responseFromServer;
+                                    manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, dataAPI, currentLog);
+                                }
                             }
                         }
                         else
                         {
-                            var cekSendEmail = ErasoftDbContext.ARF01.Where(m => m.CUST == dataAPI.no_cust).FirstOrDefault();
+                            //var cekSendEmail = ErasoftDbContext.ARF01.Where(m => m.CUST == dataAPI.no_cust).FirstOrDefault();
                             if(cekSendEmail.Sort3_Cust != "1")
                             {
                                 DatabaseSQL EDB = new DatabaseSQL(dataAPI.DatabasePathErasoft);
@@ -340,42 +349,57 @@ namespace MasterOnline.Controllers
                                 var accindb = MoDbContext.Account.Where(m => m.DatabasePathErasoft == dataAPI.DatabasePathErasoft).FirstOrDefault();
                                 bodyEmail = string.Format(bodyEmail, accindb.Username, "Shopee", cekSendEmail.PERSO, cekSendEmail.TOKEN_EXPIRED.Value.ToString("dd MMMM yyyy HH:mm tt"));
                                 SendEmailToCust(accindb.Email, "(Penting) Status integrasi akun marketplace Shopee (" + cekSendEmail.PERSO + ") sudah expired", bodyEmail);
+
+                                MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+                                {
+                                    REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssffff"),
+                                    REQUEST_ACTION = "Refresh Token Shopee V2", //ganti
+                                    REQUEST_DATETIME = milisBack,
+                                    REQUEST_ATTRIBUTE_1 = dataAPI.merchant_code,
+                                    REQUEST_ATTRIBUTE_2 = myData,
+                                    REQUEST_STATUS = "Failed"
+                                };
+                                currentLog.REQUEST_EXCEPTION = responseFromServer;
+                                manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, dataAPI, currentLog);
                             }
                             
 
+                            //MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+                            //{
+                            //    REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssffff"),
+                            //    REQUEST_ACTION = "Refresh Token Shopee V2", //ganti
+                            //    REQUEST_DATETIME = milisBack,
+                            //    REQUEST_ATTRIBUTE_1 = dataAPI.merchant_code,
+                            //    REQUEST_STATUS = "Failed"
+                            //};
+                            //currentLog.REQUEST_EXCEPTION = responseFromServer;
+                            //manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, dataAPI, currentLog);
+                        }
+
+                    }
+                    catch (Exception ex)
+                    {
+                        if (cekSendEmail.Sort3_Cust != "1")
+                        {
                             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
                             {
                                 REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssffff"),
                                 REQUEST_ACTION = "Refresh Token Shopee V2", //ganti
                                 REQUEST_DATETIME = milisBack,
                                 REQUEST_ATTRIBUTE_1 = dataAPI.merchant_code,
+                                REQUEST_ATTRIBUTE_2 = myData,
                                 REQUEST_STATUS = "Failed"
                             };
-                            currentLog.REQUEST_EXCEPTION = responseFromServer;
+                            currentLog.REQUEST_EXCEPTION = responseFromServer + ";" + ex.Message;
                             manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, dataAPI, currentLog);
+                            //currentLog.REQUEST_EXCEPTION = ex.Message.ToString();
+                            //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, dataAPI, currentLog);
                         }
-
-                    }
-                    catch (Exception ex)
-                    {
-                        MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
-                        {
-                            REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssffff"),
-                            REQUEST_ACTION = "Refresh Token Shopee V2", //ganti
-                            REQUEST_DATETIME = milisBack,
-                            REQUEST_ATTRIBUTE_1 = dataAPI.merchant_code,
-                            REQUEST_STATUS = "Failed"
-                        };
-                        currentLog.REQUEST_EXCEPTION = responseFromServer + ";" + ex.Message;
-                        manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, dataAPI, currentLog);
-                        //currentLog.REQUEST_EXCEPTION = ex.Message.ToString();
-                        //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, dataAPI, currentLog);
-
                     }
                 }
                 else
                 {
-                    var cekSendEmail = ErasoftDbContext.ARF01.Where(m => m.CUST == dataAPI.no_cust).FirstOrDefault();
+                    //var cekSendEmail = ErasoftDbContext.ARF01.Where(m => m.CUST == dataAPI.no_cust).FirstOrDefault();
                     if (cekSendEmail.Sort3_Cust != "1")
                     {
                         DatabaseSQL EDB = new DatabaseSQL(dataAPI.DatabasePathErasoft);

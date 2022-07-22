@@ -1667,7 +1667,8 @@ namespace MasterOnline.Controllers
                                     if (tempbrginDB == null && brgInDB == null)
                                     {
                                         //ret.recordCount++;
-                                        var ret1 = await proses_Item_detail_V2(itemRes, categoryCode, categoryName, cust, IdMarket, brgMpInduk, itemRes.item_name, itemRes.item_status, hargaBrg, string.IsNullOrEmpty(itemRes.item_sku) ? brgMpInduk : itemRes.item_sku, 1, "", iden, true);
+                                        var ret1 = await proses_Item_detail_V2(itemRes, categoryCode, categoryName, cust, IdMarket, brgMpInduk, itemRes.item_name, 
+                                            itemRes.item_status, hargaBrg, string.IsNullOrEmpty(itemRes.item_sku) ? brgMpInduk : itemRes.item_sku, 1, "", iden, true, "");
                                         ret.recordCount += ret1.status;
                                     }
                                     else if (brgInDB != null)
@@ -1689,13 +1690,23 @@ namespace MasterOnline.Controllers
                                         if (tempbrginDB == null && brgInDB == null)
                                         {
                                             var variationName = "";
-                                            for(int i =0; i < item.tier_index.Length; i++)
+                                            string imgvar = "";
+                                            for (int i =0; i < item.tier_index.Length; i++)
                                             {
                                                 var tier_var = itemVariation.response.tier_variation[i];
                                                 variationName += tier_var.option_list[item.tier_index[i]].option + " ";
+                                                if(tier_var.option_list[item.tier_index[i]].image != null)
+                                                {
+                                                    if (!string.IsNullOrEmpty(tier_var.option_list[item.tier_index[i]].image.image_url))
+                                                    {
+                                                        imgvar = tier_var.option_list[item.tier_index[i]].image.image_url;
+                                                    }
+                                                }
                                             }
                                             //ret.recordCount++;
-                                            var ret2 = await proses_Item_detail_V2(itemRes, categoryCode, categoryName, cust, IdMarket, brgMp, itemRes.item_name + " " + variationName, itemRes.item_status, item.price_info[0].original_price, sellerSku, 2, brgMpInduk, iden, insert_1st_img);
+                                            var ret2 = await proses_Item_detail_V2(itemRes, categoryCode, categoryName, cust, IdMarket, brgMp, 
+                                                itemRes.item_name + " " + variationName, itemRes.item_status, item.price_info[0].original_price, sellerSku, 2, 
+                                                brgMpInduk, iden, insert_1st_img, imgvar);
                                             ret.recordCount += ret2.status;
                                             insert_1st_img = false;//varian ke-2 tidak perlu ambil gambar
                                         }
@@ -1714,7 +1725,8 @@ namespace MasterOnline.Controllers
                                         {
                                             hargaBrg = itemRes.price_info[0].original_price;
                                         }
-                                        var ret0 = await proses_Item_detail_V2(itemRes, categoryCode, categoryName, cust, IdMarket, Convert.ToString(itemRes.item_id) + ";0", itemRes.item_name, itemRes.item_status, hargaBrg, sellerSku, 0, "", iden, true);
+                                        var ret0 = await proses_Item_detail_V2(itemRes, categoryCode, categoryName, cust, IdMarket, 
+                                            Convert.ToString(itemRes.item_id) + ";0", itemRes.item_name, itemRes.item_status, hargaBrg, sellerSku, 0, "", iden, true, "");
                                         ret.recordCount += ret0.status;
                                     }
                                 }
@@ -1791,7 +1803,7 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        protected async Task<BindingBase> proses_Item_detail_V2(Item_List detailBrg, string categoryCode, string categoryName, string cust, int IdMarket, string barang_id, string barang_name, string barang_status, float barang_price, string sellerSku, int typeBrg, string kdBrgInduk, ShopeeAPIData iden, bool insert_1st_img)
+        protected async Task<BindingBase> proses_Item_detail_V2(Item_List detailBrg, string categoryCode, string categoryName, string cust, int IdMarket, string barang_id, string barang_name, string barang_status, float barang_price, string sellerSku, int typeBrg, string kdBrgInduk, ShopeeAPIData iden, bool insert_1st_img, string imgvar)
         {
             // typeBrg : 0 = barang tanpa varian; 1 = barang induk; 2 = barang varian
             var ret = new BindingBase();
@@ -1818,7 +1830,7 @@ namespace MasterOnline.Controllers
             string urlBrg = "https://shopee.co.id/product/" + iden.merchant_code + "/" + detailBrg.item_id;
             if (detailBrg.image.image_url_list.Length > 0)
             {
-                if (insert_1st_img)
+                //if (insert_1st_img)
                 {
                     urlImage = detailBrg.image.image_url_list[0];
                     //change 21/8/2019, barang varian ambil 1 gambar saja
@@ -1847,7 +1859,10 @@ namespace MasterOnline.Controllers
                     //end change 21/8/2019, barang varian ambil 1 gambar saja
                 }
             }
-
+            if(typeBrg == 2)
+            {
+                urlImage = imgvar;
+            }
             //add 21 mei 2021, logistic shopee
             var listLogistic = "";
             if (detailBrg.logistic_info != null)
@@ -2970,7 +2985,7 @@ namespace MasterOnline.Controllers
             bool TokenExpired = false;
             if (!string.IsNullOrWhiteSpace(dataAPI.token_expired.ToString()))
             {
-                if (dataAPI.token_expired < DateTime.UtcNow.AddHours(7).AddMinutes(30))
+                if (dataAPI.token_expired < DateTime.UtcNow.AddHours(7).AddMinutes(15))
                 {
                     var cekInDB = ErasoftDbContext.ARF01.Where(m => m.CUST == dataAPI.no_cust).FirstOrDefault();
                     if (cekInDB != null)
@@ -2984,7 +2999,7 @@ namespace MasterOnline.Controllers
                             dataAPI.token_expired = cekInDB.TOKEN_EXPIRED.Value;
                             dataAPI.token = cekInDB.TOKEN;
 
-                            if (cekInDB.TOKEN_EXPIRED.Value.AddMinutes(-30) > DateTime.UtcNow.AddHours(7))
+                            if (cekInDB.TOKEN_EXPIRED.Value.AddMinutes(-15) > DateTime.UtcNow.AddHours(7))
                             {
                                 return dataAPI;
                             }
@@ -3051,6 +3066,7 @@ namespace MasterOnline.Controllers
 
                 long seconds = CurrentTimeSecond();
                 DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+                var cekSendEmail = ErasoftDbContext.ARF01.Where(m => m.CUST == dataAPI.no_cust).FirstOrDefault();
 
                 //MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
                 //{
@@ -3112,16 +3128,20 @@ namespace MasterOnline.Controllers
                             err = sr.ReadToEnd();
                         }
                     }
-                    MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+                    if (cekSendEmail.Sort3_Cust != "1")
                     {
-                        REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssffff"),
-                        REQUEST_ACTION = "Refresh Token Shopee V2", //ganti
-                        REQUEST_DATETIME = milisBack,
-                        REQUEST_ATTRIBUTE_1 = dataAPI.merchant_code,
-                        REQUEST_STATUS = "Failed"
-                    };
-                    currentLog.REQUEST_EXCEPTION = err;
-                    manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, dataAPI, currentLog);
+                        MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+                        {
+                            REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssffff"),
+                            REQUEST_ACTION = "Refresh Token Shopee V2", //ganti
+                            REQUEST_DATETIME = milisBack,
+                            REQUEST_ATTRIBUTE_1 = dataAPI.merchant_code,
+                            REQUEST_ATTRIBUTE_2 = myData,
+                            REQUEST_STATUS = "Failed"
+                        };
+                        currentLog.REQUEST_EXCEPTION = (err == "" ? e.Message : err);
+                        manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, dataAPI, currentLog);
+                    }
                 }
 
                 if (responseFromServer != "")
@@ -3196,21 +3216,25 @@ namespace MasterOnline.Controllers
                             }
                             else
                             {
-                                MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+                                if (cekSendEmail.Sort3_Cust != "1")
                                 {
-                                    REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssffff"),
-                                    REQUEST_ACTION = "Refresh Token Shopee V2", //ganti
-                                    REQUEST_DATETIME = milisBack,
-                                    REQUEST_ATTRIBUTE_1 = dataAPI.merchant_code,
-                                    REQUEST_STATUS = "Failed"
-                                };
-                                currentLog.REQUEST_EXCEPTION = responseFromServer;
-                                manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, dataAPI, currentLog);
+                                    MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+                                    {
+                                        REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssffff"),
+                                        REQUEST_ACTION = "Refresh Token Shopee V2", //ganti
+                                        REQUEST_DATETIME = milisBack,
+                                        REQUEST_ATTRIBUTE_1 = dataAPI.merchant_code,
+                                        REQUEST_ATTRIBUTE_2 = myData,
+                                        REQUEST_STATUS = "Failed"
+                                    };
+                                    currentLog.REQUEST_EXCEPTION = responseFromServer;
+                                    manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, dataAPI, currentLog);
+                                }
                             }
                         }
                         else
                         {
-                            var cekSendEmail = ErasoftDbContext.ARF01.Where(m => m.CUST == dataAPI.no_cust).FirstOrDefault();
+                            //var cekSendEmail = ErasoftDbContext.ARF01.Where(m => m.CUST == dataAPI.no_cust).FirstOrDefault();
                             if (cekSendEmail.Sort3_Cust != "1")
                             {
                                 DatabaseSQL EDB = new DatabaseSQL(dataAPI.DatabasePathErasoft);
@@ -3233,43 +3257,59 @@ namespace MasterOnline.Controllers
                                 var accindb = MoDbContext.Account.Where(m => m.DatabasePathErasoft == dataAPI.DatabasePathErasoft).FirstOrDefault();
                                 bodyEmail = string.Format(bodyEmail, accindb.Username, "Shopee", cekSendEmail.PERSO, cekSendEmail.TOKEN_EXPIRED.Value.ToString("dd MMMM yyyy HH:mm tt"));
                                 new ShopeeControllerJob().SendEmailToCust(accindb.Email, "(Penting) Status integrasi akun marketplace Shopee (" + cekSendEmail.PERSO + ") sudah expired", bodyEmail);
+
+                                MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+                                {
+                                    REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssffff"),
+                                    REQUEST_ACTION = "Refresh Token Shopee V2", //ganti
+                                    REQUEST_DATETIME = milisBack,
+                                    REQUEST_ATTRIBUTE_1 = dataAPI.merchant_code,
+                                    REQUEST_ATTRIBUTE_2 = myData,
+                                    REQUEST_STATUS = "Failed"
+                                };
+                                currentLog.REQUEST_EXCEPTION = responseFromServer;
+                                manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, dataAPI, currentLog);
                             }
                             if (!string.IsNullOrWhiteSpace(result.message.ToString()))
                             {
                                 //currentLog.REQUEST_EXCEPTION = result.message.ToString();
                                 //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, dataAPI, currentLog);
                             }
+                            //MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+                            //{
+                            //    REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssffff"),
+                            //    REQUEST_ACTION = "Refresh Token Shopee V2", //ganti
+                            //    REQUEST_DATETIME = milisBack,
+                            //    REQUEST_ATTRIBUTE_1 = dataAPI.merchant_code,
+                            //    REQUEST_STATUS = "Failed"
+                            //};
+                            //currentLog.REQUEST_EXCEPTION = responseFromServer;
+                            //manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, dataAPI, currentLog);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        if (cekSendEmail.Sort3_Cust != "1")
+                        {
                             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
                             {
                                 REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssffff"),
                                 REQUEST_ACTION = "Refresh Token Shopee V2", //ganti
                                 REQUEST_DATETIME = milisBack,
                                 REQUEST_ATTRIBUTE_1 = dataAPI.merchant_code,
+                                REQUEST_ATTRIBUTE_2 = myData,
                                 REQUEST_STATUS = "Failed"
                             };
-                            currentLog.REQUEST_EXCEPTION = responseFromServer;
+                            currentLog.REQUEST_EXCEPTION = responseFromServer + ";" + ex.Message;
                             manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, dataAPI, currentLog);
+                            //currentLog.REQUEST_EXCEPTION = ex.Message.ToString();
+                            //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, dataAPI, currentLog);
                         }
-                    }
-                    catch (Exception ex)
-                    {
-                        MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
-                        {
-                            REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssffff"),
-                            REQUEST_ACTION = "Refresh Token Shopee V2", //ganti
-                            REQUEST_DATETIME = milisBack,
-                            REQUEST_ATTRIBUTE_1 = dataAPI.merchant_code,
-                            REQUEST_STATUS = "Failed"
-                        };
-                        currentLog.REQUEST_EXCEPTION = responseFromServer + ";" + ex.Message;
-                        manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, dataAPI, currentLog);
-                        //currentLog.REQUEST_EXCEPTION = ex.Message.ToString();
-                        //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, dataAPI, currentLog);
                     }
                 }
                 else
                 {
-                    var cekSendEmail = ErasoftDbContext.ARF01.Where(m => m.CUST == dataAPI.no_cust).FirstOrDefault();
+                    //var cekSendEmail = ErasoftDbContext.ARF01.Where(m => m.CUST == dataAPI.no_cust).FirstOrDefault();
                     if (cekSendEmail.Sort3_Cust != "1")
                     {
                         DatabaseSQL EDB = new DatabaseSQL(dataAPI.DatabasePathErasoft);
