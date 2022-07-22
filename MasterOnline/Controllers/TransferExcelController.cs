@@ -8645,7 +8645,7 @@ namespace MasterOnline.Controllers
         }
         //end add by nurul 9/4/2021, download excel bayar piutang
 
-        //add by azhari
+        //add by azhari 20/07/22
         public ActionResult ListPembelitoExcel(string drtgl, string sdtgl)
         {
             var ret = new BindDownloadExcel
@@ -8670,7 +8670,7 @@ namespace MasterOnline.Controllers
 
                     if(ts.Days > 30)
                     {
-                        ret.Errors.Add("Jarak waktu tidak bisa melebihi 30 hari.");
+                        ret.Errors.Add("Periode maksimal 1 bulan!");
                     }
                     else
                     {
@@ -8760,7 +8760,7 @@ namespace MasterOnline.Controllers
 
         }
     }
-    //end add by nurul 9/4/2021, download excel bayar piutang
+    //end add by azhari 20/07/22
 
 
     //add by fauzi uploadStockSaldoAwal
