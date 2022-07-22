@@ -236,8 +236,9 @@
             <div class="col-lg-8 col-sm-8 col-md-8">
                 <div class="pull-right">
                     @*<button type="button" class=" btn btn-default" data-style="expand-right">
-                            <span>Refresh</span>
-                        </button>*@
+            <span>Refresh</span>
+        </button>*@
+                    <label onclick="MenuBaru();" style="margin-right:20px;"><u>pindah ke menu sinkronisasi baru</u></label>
                     <button class="btn btn-primary" id="delete_brg" style="display:none;" onclick="$('#konfTarikData').modal('show'); setModalMode(1);">Hapus Semua barang</button>
                     <button class="btn btn-primary" id="get_data" onclick="$('#konfTarikData').modal('show'); setModalMode(2);">Ambil data dari Marketplace</button>
                     @*<button class="btn btn-primary" id="upload_brg" onclick="$('#konfTarikData').modal('show'); setModalMode(3);">Update data barang ke Master Online</button>*@
@@ -520,6 +521,9 @@
         //    table.search($(this).val()).draw();
         //});
 
+        function MenuBaru() {
+            window.location.href = "@Url.Action("master/Sinkronisasibarang", "Manage")";
+        };
 
         function setModalMode(value) {
             $('#btnDeleteAll').hide();
@@ -811,7 +815,7 @@
                 $.ajax({
                     type: "GET",
                     url: link,
-                    timeout: 0,                    
+                    timeout: 0,
                     beforeSend: function () {
                         //$('#datatable').hide();
                         $('#table-upload-barang-partial').hide();
@@ -1695,10 +1699,10 @@
                         $('#txtBrgInduk').val(data.PART);
                         $("#cmbVar").val('1').change();//brg varian
                     }
-                //change by nurul 16/9/2020, brg multi sku 
+                //change by nurul 16/9/2020, brg multi sku
                 //} else if (data.TYPE == "3" ) {
                 } else if (data.TYPE == "3" || data.TYPE == "6") {
-                //end change by nurul 16/9/2020, brg multi sku 
+                //end change by nurul 16/9/2020, brg multi sku
                     $("#cmbVar").val('0').change();
                 } else if (data.TYPE == "4") {
                     $("#cmbVar").val('2').change();

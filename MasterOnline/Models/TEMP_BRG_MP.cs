@@ -569,6 +569,7 @@ namespace MasterOnline.Models
         public string AUNIT_30 { get; set; }
         public int? MIN_ORDER { get; set; }
 
+        public string BRG { get; set; }//add for new sinkro
     }
     
 }
