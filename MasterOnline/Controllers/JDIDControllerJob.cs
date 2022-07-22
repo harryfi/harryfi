@@ -10177,19 +10177,19 @@ namespace MasterOnline.Controllers
         public class addSKUVariantJDID
         {
             public long spuId { get; set; }
-            public List<string> packLong { get; set; }
-            public List<string> saleAttributeIds { get; set; }
-            public Int32[] costPrice { get; set; }
-            public List<string> upc { get; set; }
-            public List<string> weight { get; set; }
-            public List<string> sellerSkuId { get; set; }
-            public List<string> saleAttrValueAlias { get; set; }
-            public List<string> skuName { get; set; }
-            public List<string> packWide { get; set; }
-            public int[] piece { get; set; }
-            public Int32[] jdPrice { get; set; }
-            public List<string> packHeight { get; set; }
-            public Int32[] stock { get; set; }
+            public string packLong { get; set; }
+            public string saleAttributeIds { get; set; }
+            public int costPrice { get; set; }
+            public string upc { get; set; }
+            public string weight { get; set; }
+            public string sellerSkuId { get; set; }
+            public string saleAttrValueAlias { get; set; }
+            public string skuName { get; set; }
+            public string packWide { get; set; }
+            public int piece { get; set; }
+            public int jdPrice { get; set; }
+            public string packHeight { get; set; }
+            public int stock { get; set; }
 
             //public string[] packLong { get; set; }
             //public string[] saleAttributeIds { get; set; }
