@@ -97,7 +97,7 @@
             <div class="col-lg-8 col-sm-6">
                 <div class="pull-right">
                     <div class=" btn-group" role="group" style="vertical-align: top;">
-                        <button id="excelFaktur" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <button id="excelPembeli" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             Excel Pembeli <span class="caret"></span>
                         </button>
                         <div class="dropdown-menu">
@@ -406,6 +406,7 @@
                     format: 'dd/mm/yyyy',
                     language: 'id'
                 }).datepicker('setDate', '0');
+                // end add by azhari 20-07-2022
             });
 
         function Initialize() {
@@ -930,7 +931,7 @@
         }
         //end add by nurul 20/11/2019
 
-        //add by azhari
+        //add by azhari 20-07-2022
         function DownloadExcelPembeli() {
             $('#loading_spinner').show();
             var drTgl = $('#DrTanggal').val();
@@ -970,6 +971,7 @@
                 }
             });
         }
+        //end add by azhari 20-07-2022
 
         function saveByteArray(reportName, byte) {
             var blob = new Blob([byte], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
