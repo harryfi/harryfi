@@ -8676,7 +8676,7 @@ namespace MasterOnline.Controllers
                     {
                         string sSQL = "";
 
-                        sSQL = "select c.buyer_code[Kode_Pembeli],C.nama[Nama_Pembeli], NamaProv[Provinsi],  NamaKabKot[Kota], isnull(c.EMAIL, '')[Email], C.TLP[No.HP], COUNT(PEMESAN) [Total_Pesanan],ISNULL(SUM(NILAI), 0)[Nilai_Pesanan]";
+                        sSQL = "select c.buyer_code[Kode_Pembeli],C.nama[Nama_Pembeli], replace(replace(replace(convert(nvarchar(max),C.AL), char(9), ' '), char(10), ' ') , char(13), ' ') [AlamatPembeli] ,NamaProv[Provinsi],  NamaKabKot[Kota], isnull(c.EMAIL, '')[Email], C.TLP[No.HP], COUNT(PEMESAN) [Total_Pesanan],ISNULL(SUM(NILAI), 0)[Nilai_Pesanan]";
                         sSQL += "FROM ARF01C C LEFT JOIN (SELECT ISNULL(A.PEMESAN, ISNULL(B.PEMESAN, '')) PEMESAN, ISNULL(B.BRUTO, ISNULL(A.BRUTO, 0)) NILAI, A.TGL, B.CUST ";
                         sSQL += "FROM SOT01A A FULL OUTER JOIN SIT01A B ON A.NO_BUKTI = B.NO_SO LEFT JOIN SIT01A  R ON B.NO_BUKTI = R.NO_REF AND R.JENIS_FORM = '3' WHERE ISNULL(A.STATUS_TRANSAKSI, '') <> '0' ";
                         sSQL += "AND ISNULL(A.STATUS_TRANSAKSI, '') <> '11' AND ISNULL(B.JENIS_FORM, '2') = '2' AND ISNULL(B.STATUS, '') <> '2' AND ISNULL(R.NO_BUKTI, '') = '' ";
@@ -8697,28 +8697,30 @@ namespace MasterOnline.Controllers
                             {
                                 worksheet.Cells[5 + i, 1].Value = lsPembeli.Tables[0].Rows[i]["Kode_Pembeli"];
                                 worksheet.Cells[5 + i, 2].Value = lsPembeli.Tables[0].Rows[i]["Nama_Pembeli"];
-                                worksheet.Cells[5 + i, 3].Value = lsPembeli.Tables[0].Rows[i]["Provinsi"];
-                                worksheet.Cells[5 + i, 4].Value = lsPembeli.Tables[0].Rows[i]["Kota"];
-                                worksheet.Cells[5 + i, 5].Value = lsPembeli.Tables[0].Rows[i]["Email"];
-                                worksheet.Cells[5 + i, 6].Value = lsPembeli.Tables[0].Rows[i]["No.HP"];
-                                worksheet.Cells[5 + i, 7].Value = lsPembeli.Tables[0].Rows[i]["Total_Pesanan"];
-                                worksheet.Cells[5 + i, 8].Value = lsPembeli.Tables[0].Rows[i]["Nilai_Pesanan"];
+                                worksheet.Cells[5 + i, 3].Value = lsPembeli.Tables[0].Rows[i]["AlamatPembeli"];
+                                worksheet.Cells[5 + i, 4].Value = lsPembeli.Tables[0].Rows[i]["Provinsi"];
+                                worksheet.Cells[5 + i, 5].Value = lsPembeli.Tables[0].Rows[i]["Kota"];
+                                worksheet.Cells[5 + i, 6].Value = lsPembeli.Tables[0].Rows[i]["Email"];
+                                worksheet.Cells[5 + i, 7].Value = lsPembeli.Tables[0].Rows[i]["No.HP"];
+                                worksheet.Cells[5 + i, 8].Value = lsPembeli.Tables[0].Rows[i]["Total_Pesanan"];
+                                worksheet.Cells[5 + i, 9].Value = lsPembeli.Tables[0].Rows[i]["Nilai_Pesanan"];
                             }
 
-                            ExcelRange rg0 = worksheet.Cells[4, 1, worksheet.Dimension.End.Row, 8];
+                            ExcelRange rg0 = worksheet.Cells[4, 1, worksheet.Dimension.End.Row, 9];
                             string tableName0 = "TableDataPembeli";
                             ExcelTable table0 = worksheet.Tables.Add(rg0, tableName0);
 
                             table0.Columns[0].Name = "Kode Pembeli";
                             table0.Columns[1].Name = "Nama Pembeli";
-                            table0.Columns[2].Name = "Provinsi";
-                            table0.Columns[3].Name = "Kota";
-                            table0.Columns[4].Name = "Email";
-                            table0.Columns[5].Name = "No. HP";
-                            table0.Columns[6].Name = "Total Pesanan";
-                            table0.Columns[7].Name = "Nilai Pesanan";
+                            table0.Columns[2].Name = "Alamat Pembeli";
+                            table0.Columns[3].Name = "Provinsi";
+                            table0.Columns[4].Name = "Kota";
+                            table0.Columns[5].Name = "Email";
+                            table0.Columns[6].Name = "No. HP";
+                            table0.Columns[7].Name = "Total Pesanan";
+                            table0.Columns[8].Name = "Nilai Pesanan";
 
-                            using (var range = worksheet.Cells[4, 1, 4, 8])
+                            using (var range = worksheet.Cells[4, 1, 4, 9])
                             {
                                 range.Style.Border.Top.Style = ExcelBorderStyle.Thin;
                                 range.Style.Border.Left.Style = ExcelBorderStyle.Thin;
