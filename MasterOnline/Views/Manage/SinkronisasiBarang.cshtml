@@ -223,7 +223,7 @@
             </div>
             <div class="col-lg-6 col-sm-6 col-md-6">
                 <div class="pull-right">
-                    <label onclick="MenuLama();" style="margin-right:20px;"><u>kembali ke menu sinkronisasi lama</u></label>
+                    <label onclick="MenuLama();" style="margin-right:20px;" id="lblBackMenu"><u>kembali ke menu sinkronisasi lama</u></label>
                     <button class="btn btn-primary" onclick="CekCustSimpan();">Simpan</button>
                     <button class="btn btn-primary" id="get_data" onclick="$('#konfTarikData').modal('show'); setModalMode(2);">Ambil data dari Marketplace</button>
                 </div>
@@ -493,7 +493,11 @@
                     refreshTableBarangSinkro("1");
                 }
             });
+            
 
+            $('#lblBackMenu').hover(function () {
+                $(this).css('cursor', 'pointer');
+            });
             $('#search_barang2').keypress(function (e) {
                 var key = e.which;
                 if (key == 13)// the enter key code

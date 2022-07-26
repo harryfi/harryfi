@@ -238,7 +238,7 @@
                     @*<button type="button" class=" btn btn-default" data-style="expand-right">
             <span>Refresh</span>
         </button>*@
-                    <label onclick="MenuBaru();" style="margin-right:20px;"><u>pindah ke menu sinkronisasi baru</u></label>
+                    <label onclick="MenuBaru();" style="margin-right:20px;" id="lblBackMenu"><u>pindah ke menu sinkronisasi baru</u></label>
                     <button class="btn btn-primary" id="delete_brg" style="display:none;" onclick="$('#konfTarikData').modal('show'); setModalMode(1);">Hapus Semua barang</button>
                     <button class="btn btn-primary" id="get_data" onclick="$('#konfTarikData').modal('show'); setModalMode(2);">Ambil data dari Marketplace</button>
                     @*<button class="btn btn-primary" id="upload_brg" onclick="$('#konfTarikData').modal('show'); setModalMode(3);">Update data barang ke Master Online</button>*@
@@ -632,6 +632,9 @@
                 searchTableBarangUpload();
             });
             //end add by nurul 17/6/2019, paging
+            $('#lblBackMenu').hover(function () {
+                $(this).css('cursor', 'pointer');
+            });
         });
 
         //change by nurul 17/6/2019, paging
