@@ -1105,9 +1105,12 @@
                                 UploadAllBrgWithProgressBar(0, maxPage, dataPerPage, 0);
                             } else {
                                 alert('Tidak ada data barang untuk di update dari Akun ini.\nSilahkan lakukan Ambil data dari Marketplace terlebih dahulu.');
+                                $('#konfProsesSinkro').modal('hide');
+
                                     }
                         } else {
                             alert('Tidak ada data barang untuk di update dari Akun ini.\nSilahkan lakukan Ambil data dari Marketplace terlebih dahulu.');
+                            $('#konfProsesSinkro').modal('hide');
                             }
                     } else {
                         alert(response.Errors);
@@ -1142,26 +1145,30 @@
                             lastPage = 0;
                             loop = 1;
 
-                            alert('Proses sinkronisasi data barang telah selesai.');
+                            //alert('Proses sinkronisasi data barang telah selesai.');
+                            setTimeout(function () { alert("Proses sinkronisasi data barang telah selesai."); }, 10);
                             $('#btnCancelSinkroBrg').prop('disabled', false);
                             $('#btnProsesSinkroBrg').prop('disabled', false);
                             if (listErrorMessage != "") {
                                 document.getElementById('lblListError').innerText = listErrorMessage;
                                 $('#modalError').modal('show');
                             }
-
+                            $('#konfProsesSinkro').modal('hide');
+                            refreshTableBarangSinkro();
                         } else {
                             UploadAllBrgWithProgressBar((currentPage + 1), maxPage, dataPerPage, response.failedRecord);
                         }
                     } else {
-                        alert('Proses sinkronisasi data barang telah selesai.');
+                        //alert('Proses sinkronisasi data barang telah selesai.');
+                        setTimeout(function () { alert("Proses sinkronisasi data barang telah selesai."); }, 10);
                         $('#btnCancelSinkroBrg').prop('disabled', false);
                         $('#btnProsesSinkroBrg').prop('disabled', false);
                         if (listErrorMessage != "") {
                             document.getElementById('lblListError').innerText = listErrorMessage;
                             $('#modalError').modal('show');
                         }
-
+                        $('#konfProsesSinkro').modal('hide');
+                        refreshTableBarangSinkro();
                     }
                 },
                 error: function (xhr, status, error) {

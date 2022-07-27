@@ -68,18 +68,22 @@
         var key = e.which;
         if (key == 13)// the enter key code
         {
-            refreshTablePrompt();
+            refreshTablePrompt(1);
             return false;
         }
     });
     $('#search_prompt_btn').click(function () {
-        refreshTablePrompt();
+        refreshTablePrompt(1);
     });
 
-    function refreshTablePrompt() {
+        function refreshTablePrompt(page) {
+            sPage = $('#txt_last_page').val();
+            if (page == 1) {
+                sPage = page;
+            }
         var $link = '@Html.Raw(Url.Action("RefreshPromptCustomer", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
         $link = $link.replace("replaceSearch", encodeURIComponent($('#search_prompt').val()));
-        $link = $link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page').val()));
+            $link = $link.replace("replaceLastPage", encodeURIComponent(sPage));
 
         $.ajax({
             type: "GET",
