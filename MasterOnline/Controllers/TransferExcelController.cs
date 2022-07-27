@@ -8677,7 +8677,7 @@ namespace MasterOnline.Controllers
                         string sSQL = "";
 
                         sSQL = "select c.buyer_code[Kode_Pembeli],C.nama[Nama_Pembeli], replace(replace(replace(convert(nvarchar(max),C.AL), char(9), ' '), char(10), ' ') , char(13), ' ') [AlamatPembeli] ,NamaProv[Provinsi],  NamaKabKot[Kota], isnull(c.EMAIL, '')[Email], C.TLP[No.HP], COUNT(PEMESAN) [Total_Pesanan],ISNULL(SUM(NILAI), 0)[Nilai_Pesanan]";
-                        sSQL += "FROM ARF01C C LEFT JOIN (SELECT ISNULL(A.PEMESAN, ISNULL(B.PEMESAN, '')) PEMESAN, ISNULL(B.BRUTO, ISNULL(A.BRUTO, 0)) NILAI, A.TGL, B.CUST ";
+                        sSQL += "FROM ARF01C C LEFT JOIN (SELECT ISNULL(A.PEMESAN, ISNULL(B.PEMESAN, '')) PEMESAN, ISNULL(B.BRUTO, ISNULL(A.BRUTO, 0)) NILAI, B.CUST, ISNULL(A.TGL, ISNULL(B.TGL, '')) TGL ";
                         sSQL += "FROM SOT01A A FULL OUTER JOIN SIT01A B ON A.NO_BUKTI = B.NO_SO LEFT JOIN SIT01A  R ON B.NO_BUKTI = R.NO_REF AND R.JENIS_FORM = '3' WHERE ISNULL(A.STATUS_TRANSAKSI, '') <> '0' ";
                         sSQL += "AND ISNULL(A.STATUS_TRANSAKSI, '') <> '11' AND ISNULL(B.JENIS_FORM, '2') = '2' AND ISNULL(B.STATUS, '') <> '2' AND ISNULL(R.NO_BUKTI, '') = '' ";
                         sSQL += ") AS QRY ON C.BUYER_CODE = QRY.PEMESAN left join mo..Provinsi prov on prov.KodeProv=c.KODEPROV left join mo..KabupatenKota kab on kab.KodeKabKot = c.KODEKABKOT left join arf01 arf (nolock) on arf.cust = QRY.cust left join mo..marketplace mp (nolock) on arf.nama = mp.idmarket ";
