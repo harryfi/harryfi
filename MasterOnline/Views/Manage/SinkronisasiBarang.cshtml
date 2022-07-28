@@ -493,7 +493,7 @@
                     refreshTableBarangSinkro("1");
                 }
             });
-            
+
 
             $('#lblBackMenu').hover(function () {
                 $(this).css('cursor', 'pointer');
@@ -692,7 +692,7 @@
             $('#btnPilih_' + val).show();
             $('#btnHapus_' + val).hide();
         }
-        
+
         function CekCustSimpan() {
             if ($('#promptHiddenField').val() == null || $('#promptHiddenField').val() == "") {
                 alert('Anda belum memilih Toko');
@@ -1073,7 +1073,7 @@
                 sHTML += '<tr>';
                 sHTML += '<td class="col-md-3"><label>Proses Sinkronisasi : </label></td>';
                 sHTML += '<td class="col-md-9"><div class="progress"><div class="progress-bar progress-bar-success progress-bar-striped active" role="progressbar"';
-                sHTML += ' id="pBar_1" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%">0% Complete (success)</div></div>';
+            sHTML += ' id="pBar_uploadFile" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%">0% Complete (success)</div></div>';
                 sHTML += '</td></tr>';
             //}
             sHTML += "</table>";
@@ -1102,7 +1102,7 @@
                                 dataPerPage = 50;
                                 lastPage = 0;
                                 loop = 1;
-                                UploadAllBrgWithProgressBar(0, maxPage, dataPerPage, 0);
+                                SinkroBrgnoLoop(0, maxPage, dataPerPage, 0);
                             } else {
                                 alert('Tidak ada data barang untuk di update dari Akun ini.\nSilahkan lakukan Ambil data dari Marketplace terlebih dahulu.');
                                 $('#konfProsesSinkro').modal('hide');
@@ -1200,6 +1200,64 @@
 
         }
 
+        function SinkroBrgnoLoop(currentPage, maxPage, dataPerPage, failedToSync) {
+
+            var link = '@Url.Action("SinkroBrgnoLoop", "Manage")';
+            link += "?cust=" + encodeURIComponent($('#promptHiddenField').val()) + "&dataPerPage=" + encodeURIComponent(dataPerPage) + "&skipDataError="
+                + encodeURIComponent(failedToSync) + '&namaFileLog=' + encodeURIComponent(namaFileLog);
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                success: function (response) {
+                    lastPage = currentPage;
+                    if (response.Errors != null) {
+                        if (response.Errors.length > 0) {
+                            response.Errors.forEach(ErrorMessageDialog);
+                        }
+                    }
+                    //$('#pBar_1').css('width', parseFloat(((currentPage + 1) / (maxPage + 1) * 100)).toFixed(2) + '%').attr('aria-valuenow', (currentPage + 1) / (maxPage + 1) * 100);
+                    //$('#pBar_1').html(parseFloat(((currentPage + 1) / (maxPage + 1) * 100)).toFixed(2) + '% Complete');
+                    
+                        //alert('Proses sinkronisasi data barang telah selesai.');
+                        setTimeout(popupAlertProsesSinkro("Proses sinkronisasi data barang telah selesai."), 500);
+                        $('#btnCancelSinkroBrg').prop('disabled', false);
+                        $('#btnProsesSinkroBrg').prop('disabled', false);
+                        if (listErrorMessage != "") {
+                            document.getElementById('lblListError').innerText = listErrorMessage;
+                            $('#modalError').modal('show');
+                        }
+                        $('#konfProsesSinkro').modal('hide');
+                        refreshTableBarangSinkro();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                    if (xhr.status == 524) {
+                        if (lastPage == currentPage) {
+                            loop = loop + 1;
+                        } else {
+                            loop = 1;
+                        }
+                        if (loop <= 3) {
+                            UploadAllBrgWithProgressBar(currentPage, maxPage, dataPerPage, failedToSync);
+                        } else {
+                            alert('Terdapat Error saat sinkroisasi data barang.\nSilahkan hubungi tim support MO');
+                            $('#btnCancelSinkroBrg').prop('disabled', false);
+                            $('#btnProsesSinkroBrg').prop('disabled', false);
+                        }
+                    } else {
+                        alert('Proses mengambil data barang dari marketplace telah selesai.');
+                        $('#btnCancelSinkroBrg').prop('disabled', false);
+                        $('#btnProsesSinkroBrg').prop('disabled', false);
+                        if (listErrorMessage != "") {
+                            document.getElementById('lblListError').innerText = listErrorMessage;
+                            $('#modalError').modal('show');
+                        }
+                    }
+                }
+            });
+
+        }
         function popupAlertProsesSinkro(message) {
             alert(message);
         }
