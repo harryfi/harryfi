@@ -1121,7 +1121,7 @@
                 }
             });
         }
-
+        var listErrorMessage = "";
         function UploadAllBrgWithProgressBar(currentPage, maxPage, dataPerPage, failedToSync) {
 
             var link = '@Url.Action("ProsesSinkroNewUI", "Manage")';
@@ -1146,7 +1146,7 @@
                             loop = 1;
 
                             //alert('Proses sinkronisasi data barang telah selesai.');
-                            setTimeout(function () { alert("Proses sinkronisasi data barang telah selesai."); }, 10);
+                            setTimeout(popupAlertProsesSinkro("Proses sinkronisasi data barang telah selesai."), 500);
                             $('#btnCancelSinkroBrg').prop('disabled', false);
                             $('#btnProsesSinkroBrg').prop('disabled', false);
                             if (listErrorMessage != "") {
@@ -1160,7 +1160,7 @@
                         }
                     } else {
                         //alert('Proses sinkronisasi data barang telah selesai.');
-                        setTimeout(function () { alert("Proses sinkronisasi data barang telah selesai."); }, 10);
+                        setTimeout(popupAlertProsesSinkro("Proses sinkronisasi data barang telah selesai."), 500);
                         $('#btnCancelSinkroBrg').prop('disabled', false);
                         $('#btnProsesSinkroBrg').prop('disabled', false);
                         if (listErrorMessage != "") {
@@ -1198,6 +1198,10 @@
                 }
             });
 
+        }
+
+        function popupAlertProsesSinkro(message) {
+            alert(message);
         }
     </script>
 }
