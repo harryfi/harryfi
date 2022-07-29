@@ -8644,8 +8644,125 @@ namespace MasterOnline.Controllers
 
         }
         //end add by nurul 9/4/2021, download excel bayar piutang
+
+        //add by azhari 20/07/22
+        public ActionResult ListPembelitoExcel(string drtgl, string sdtgl)
+        {
+            var ret = new BindDownloadExcel
+            {
+                Errors = new List<string>()
+            };
+
+            try
+            {
+                using (var package = new OfficeOpenXml.ExcelPackage())
+                {
+                    ExcelWorksheet worksheet = package.Workbook.Worksheets.Add("PEMBELI");
+
+                    string dt1 = DateTime.ParseExact(drtgl, "dd'/'MM'/'yyyy", CultureInfo.InvariantCulture).ToString("yyyy'-'MM'-'dd 00:00:00.000");
+                    string dt2 = DateTime.ParseExact(sdtgl, "dd'/'MM'/'yyyy", CultureInfo.InvariantCulture).ToString("yyyy'-'MM'-'dd 23:59:59.999");
+
+                    DateTime tanggal1 = Convert.ToDateTime(drtgl);
+                    DateTime tanggal2 = Convert.ToDateTime(sdtgl);
+                    TimeSpan ts = new TimeSpan();
+                    ts = tanggal2.Subtract(tanggal1);
+
+
+                    if(ts.Days > 30)
+                    {
+                        ret.Errors.Add("Periode maksimal 1 bulan!");
+                    }
+                    else
+                    {
+                        string sSQL = "";
+
+                        sSQL = "select c.buyer_code[Kode_Pembeli],C.nama[Nama_Pembeli], replace(replace(replace(convert(nvarchar(max),C.AL), char(9), ' '), char(10), ' ') , char(13), ' ') [AlamatPembeli] ,NamaProv[Provinsi],  NamaKabKot[Kota], isnull(c.EMAIL, '')[Email], C.TLP[No.HP], COUNT(PEMESAN) [Total_Pesanan],ISNULL(SUM(NILAI), 0)[Nilai_Pesanan]";
+                        sSQL += "FROM ARF01C C LEFT JOIN (SELECT ISNULL(A.PEMESAN, ISNULL(B.PEMESAN, '')) PEMESAN, ISNULL(B.BRUTO, ISNULL(A.BRUTO, 0)) NILAI, B.CUST, ISNULL(A.TGL, ISNULL(B.TGL, '')) TGL ";
+                        sSQL += "FROM SOT01A A FULL OUTER JOIN SIT01A B ON A.NO_BUKTI = B.NO_SO LEFT JOIN SIT01A  R ON B.NO_BUKTI = R.NO_REF AND R.JENIS_FORM = '3' WHERE ISNULL(A.STATUS_TRANSAKSI, '') <> '0' ";
+                        sSQL += "AND ISNULL(A.STATUS_TRANSAKSI, '') <> '11' AND ISNULL(B.JENIS_FORM, '2') = '2' AND ISNULL(B.STATUS, '') <> '2' AND ISNULL(R.NO_BUKTI, '') = '' ";
+                        sSQL += ") AS QRY ON C.BUYER_CODE = QRY.PEMESAN left join mo..Provinsi prov on prov.KodeProv=c.KODEPROV left join mo..KabupatenKota kab on kab.KodeKabKot = c.KODEKABKOT left join arf01 arf (nolock) on arf.cust = QRY.cust left join mo..marketplace mp (nolock) on arf.nama = mp.idmarket ";
+                        sSQL += "where QRY.TGL >= '" + dt1 + "' and QRY.TGL <= '" + dt2 + "' ";
+                        sSQL += "group by c.buyer_code, mp.namamarket, arf.perso, C.nama, C.KODEPROV, NamaProv , C.KODEKABKOT, NamaKabKot , C.email, C.TLP, cast(C.AL as nvarchar(max)), pemesan, c.recnum ";
+                        sSQL += "order by sum(QRY.NILAI) desc"; 
+
+                        var lsPembeli = EDB.GetDataSet("CString", "ARF01C", sSQL);
+
+                        if (lsPembeli.Tables[0].Rows.Count > 0)
+                        {
+
+                            worksheet.Cells["A1"].Value = "DATA PEMBELI";
+                            worksheet.Cells["A2"].Value = "Dari Tanggal : " + drtgl + " Sampai Tanggal : " + sdtgl;
+
+                            for (int i = 0; i < lsPembeli.Tables[0].Rows.Count; i++)
+                            {
+                                worksheet.Cells[5 + i, 1].Value = lsPembeli.Tables[0].Rows[i]["Kode_Pembeli"];
+                                worksheet.Cells[5 + i, 2].Value = lsPembeli.Tables[0].Rows[i]["Nama_Pembeli"];
+                                worksheet.Cells[5 + i, 3].Value = lsPembeli.Tables[0].Rows[i]["AlamatPembeli"];
+                                worksheet.Cells[5 + i, 4].Value = lsPembeli.Tables[0].Rows[i]["Provinsi"];
+                                worksheet.Cells[5 + i, 5].Value = lsPembeli.Tables[0].Rows[i]["Kota"];
+                                worksheet.Cells[5 + i, 6].Value = lsPembeli.Tables[0].Rows[i]["Email"];
+                                worksheet.Cells[5 + i, 7].Value = lsPembeli.Tables[0].Rows[i]["No.HP"];
+                                worksheet.Cells[5 + i, 8].Value = lsPembeli.Tables[0].Rows[i]["Total_Pesanan"];
+                                worksheet.Cells[5 + i, 9].Value = lsPembeli.Tables[0].Rows[i]["Nilai_Pesanan"];
+                            }
+
+                            ExcelRange rg0 = worksheet.Cells[4, 1, worksheet.Dimension.End.Row, 9];
+                            string tableName0 = "TableDataPembeli";
+                            ExcelTable table0 = worksheet.Tables.Add(rg0, tableName0);
+
+                            table0.Columns[0].Name = "Kode Pembeli";
+                            table0.Columns[1].Name = "Nama Pembeli";
+                            table0.Columns[2].Name = "Alamat Pembeli";
+                            table0.Columns[3].Name = "Provinsi";
+                            table0.Columns[4].Name = "Kota";
+                            table0.Columns[5].Name = "Email";
+                            table0.Columns[6].Name = "No. HP";
+                            table0.Columns[7].Name = "Total Pesanan";
+                            table0.Columns[8].Name = "Nilai Pesanan";
+
+                            using (var range = worksheet.Cells[4, 1, 4, 9])
+                            {
+                                range.Style.Border.Top.Style = ExcelBorderStyle.Thin;
+                                range.Style.Border.Left.Style = ExcelBorderStyle.Thin;
+                                range.Style.Border.Right.Style = ExcelBorderStyle.Thin;
+                                range.Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+                            }
+
+                            table0.ShowHeader = true;
+                            table0.ShowFilter = true;
+                            table0.ShowRowStripes = false;
+                            worksheet.Cells.AutoFitColumns(0);
+
+                            ret.byteExcel = package.GetAsByteArray();
+                            ret.namaFile = "Data_Pembeli_" + drtgl + "_To_" + sdtgl + ".xlsx";
+                        }
+                        else
+                        {
+                            ret.Errors.Add("Tidak ada data pembeli");
+                        }
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                ret.Errors.Add(ex.InnerException == null ? ex.Message : ex.InnerException.Message);
+            }
+
+            var serializer = new System.Web.Script.Serialization.JavaScriptSerializer();
+            serializer.MaxJsonLength = Int32.MaxValue;
+
+            var result = new ContentResult
+            {
+                Content = serializer.Serialize(ret),
+                ContentType = "application/json"
+            };
+
+            return result;
+
+        }
     }
-    //end add by nurul 9/4/2021, download excel bayar piutang
+    //end add by azhari 20/07/22
 
 
     //add by fauzi uploadStockSaldoAwal
