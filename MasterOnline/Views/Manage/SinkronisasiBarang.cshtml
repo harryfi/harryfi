@@ -1117,6 +1117,8 @@
         function startSyncAll() {
             $('#btnCancelSinkroBrg').prop('disabled', true);
             $('#btnProsesSinkroBrg').prop('disabled', true);
+            $('#pBar_uploadFile').css('width', '0%').attr('aria-valuenow', 0);
+            $('#pBar_uploadFile').html('0% Complete');
             var link = '@Url.Action("GetTotalData", "Manage", new { cust = "replaceId" })';
             link = link.replace("replaceId", encodeURIComponent($('#promptHiddenField').val()));
             link += "&newprocess=1";
@@ -1237,6 +1239,9 @@
         }
 
         function SinkroBrgnoLoop(currentPage, maxPage, dataPerPage, failedToSync) {
+
+            $('#pBar_uploadFile').css('width', '0%').attr('aria-valuenow', 0);
+            $('#pBar_uploadFile').html('0% Complete');
 
             var link = '@Url.Action("SinkroBrgnoLoop", "Manage")';
             link += "?cust=" + encodeURIComponent($('#promptHiddenField').val()) + "&dataPerPage=" + encodeURIComponent(dataPerPage) + "&skipDataError="
