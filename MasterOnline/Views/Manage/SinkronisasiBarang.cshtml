@@ -224,7 +224,7 @@
             <div class="col-lg-6 col-sm-6 col-md-6">
                 <div class="pull-right">
                     <label onclick="MenuLama();" style="margin-right:20px;" id="lblBackMenu"><u>kembali ke menu sinkronisasi lama</u></label>
-                    <button class="btn btn-primary" onclick="CekCustSimpan();">Simpan</button>
+                    <button class="btn btn-primary" onclick="CekCustSimpan();showProgressBar();">Simpan</button>
                     <button class="btn btn-primary" id="get_data" onclick="$('#konfTarikData').modal('show'); setModalMode(2);">Ambil data dari Marketplace</button>
                 </div>
             </div>
@@ -381,12 +381,26 @@
                     <h4>Apakah Anda ingin memulai proses sinkronisasi?</h4>
                 </div>
                 <div class="row text-center">
-                    <div id="div_with_pbar" class="col-md-12" style="margin-bottom:20px;"></div>
-
+                    @*<div id="div_with_pbar" class="col-md-12" style="margin-bottom:20px;"></div>*@
+                    <table id="div_with_pbar" class="col-md-12" style="margin-bottom:20px;">
+                        <tr>
+                            <td class="col-md-3">
+                                <label>Proses Sinkronisasi :</label>
+                            </td>
+                            <td class="col-md-9">
+                                <div class="progress">
+                                    <div class="progress-bar progress-bar-success progress-bar-striped active" role="progressbar" id="pBar_uploadFile"
+                                         aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%">
+                                        0% Complete (success)
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" id="btnProsesSinkroBrg" class="btn btn-success" onclick="startSyncAll();showProgressBar();">Ya</button>
+                <button type="button" id="btnProsesSinkroBrg" class="btn btn-success" onclick="startSyncAll();">Ya</button>
                 <button type="button" id="btnCancelSinkroBrg" class="btn btn-danger" onclick="refreshTableBarangSinkro();" data-dismiss="modal">Tidak</button>
             </div>
         </div>
@@ -1065,22 +1079,44 @@
         }
 
         function showProgressBar() {
+            //$('#btnCancelSinkroBrg').prop('disabled', true);
+            //$('#btnProsesSinkroBrg').prop('disabled', true);
+            //$('#tbl_progbar').remove();
+            //var sHTML = '<table class="col-md-12" id="tbl_progbar">';
+            ////for (i = 0; i < rows_selected.length; i++) {
+            //    sHTML += '<tr>';
+            //    sHTML += '<td class="col-md-3"><label>Proses Sinkronisasi : </label></td>';
+            //    sHTML += '<td class="col-md-9"><div class="progress"><div class="progress-bar progress-bar-success progress-bar-striped active" role="progressbar"';
+            //sHTML += ' id="pBar_uploadFile" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%">0% Complete (success)</div></div>';
+            //    sHTML += '</td></tr>';
+            ////}
+            //sHTML += "</table>";
+            //$('#div_with_pbar').append(sHTML);
+            $('#pBar_uploadFile').css('width', '0%').attr('aria-valuenow', 0);
+            $('#pBar_uploadFile').html('0% Complete');
+        }
+        $(function () {
+            // Reference the auto-generated proxy for the hub.
+            var progress = $.connection.progressHub;
+            //console.log(progress);
+
+            // Create a function that the hub can call back to display messages.
+            progress.client.AddProgress = function (message, percentage) {
+                $('#pBar_uploadFile').width(percentage);
+                $('#pBar_uploadFile').attr('aria-valuenow', percentage);
+                $('#pBar_uploadFile').html(percentage + ' Complete');
+
+            };
+
+            $.connection.hub.start().done(function () {
+                var connectionId = $.connection.hub.id;
+                console.log(connectionId);
+            });
+
+        });
+        function startSyncAll() {
             $('#btnCancelSinkroBrg').prop('disabled', true);
             $('#btnProsesSinkroBrg').prop('disabled', true);
-            $('#tbl_progbar').remove();
-            var sHTML = '<table class="col-md-12" id="tbl_progbar">';
-            //for (i = 0; i < rows_selected.length; i++) {
-                sHTML += '<tr>';
-                sHTML += '<td class="col-md-3"><label>Proses Sinkronisasi : </label></td>';
-                sHTML += '<td class="col-md-9"><div class="progress"><div class="progress-bar progress-bar-success progress-bar-striped active" role="progressbar"';
-            sHTML += ' id="pBar_uploadFile" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%">0% Complete (success)</div></div>';
-                sHTML += '</td></tr>';
-            //}
-            sHTML += "</table>";
-            $('#div_with_pbar').append(sHTML);
-        }
-
-        function startSyncAll() {
             var link = '@Url.Action("GetTotalData", "Manage", new { cust = "replaceId" })';
             link = link.replace("replaceId", encodeURIComponent($('#promptHiddenField').val()));
             link += "&newprocess=1";
@@ -1216,6 +1252,8 @@
                             response.Errors.forEach(ErrorMessageDialog);
                         }
                     }
+                    $('#pBar_uploadFile').css('width', '100%').attr('aria-valuenow', 100);
+                    $('#pBar_uploadFile').html('100% Complete');
                     //$('#pBar_1').css('width', parseFloat(((currentPage + 1) / (maxPage + 1) * 100)).toFixed(2) + '%').attr('aria-valuenow', (currentPage + 1) / (maxPage + 1) * 100);
                     //$('#pBar_1').html(parseFloat(((currentPage + 1) / (maxPage + 1) * 100)).toFixed(2) + '% Complete');
                     
@@ -1239,14 +1277,18 @@
                             loop = 1;
                         }
                         if (loop <= 3) {
-                            UploadAllBrgWithProgressBar(currentPage, maxPage, dataPerPage, failedToSync);
+                            SinkroBrgnoLoop(currentPage, maxPage, dataPerPage, failedToSync);
                         } else {
+                            $('#pBar_uploadFile').css('width', '100%').attr('aria-valuenow', 100);
+                            $('#pBar_uploadFile').html('100% Complete');
                             alert('Terdapat Error saat sinkroisasi data barang.\nSilahkan hubungi tim support MO');
                             $('#btnCancelSinkroBrg').prop('disabled', false);
                             $('#btnProsesSinkroBrg').prop('disabled', false);
                         }
                     } else {
-                        alert('Proses mengambil data barang dari marketplace telah selesai.');
+                        $('#pBar_uploadFile').css('width', '100%').attr('aria-valuenow', 100);
+                        $('#pBar_uploadFile').html('100% Complete');
+                        alert('Proses sinkronisasi data barang telah selesai.');
                         $('#btnCancelSinkroBrg').prop('disabled', false);
                         $('#btnProsesSinkroBrg').prop('disabled', false);
                         if (listErrorMessage != "") {
