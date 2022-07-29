@@ -43,9 +43,9 @@
         max-width: 60px;
     }
 </style>
-<div id="loading_uploadbarang_tab" style="display:none;">
-    <div id="loading_sinkrobarang_tab_image">
-        <img src="~/Content/Images/spinner.gif" />
+<div id="loading_rekomendasisinkrobarang_tab" style="display:none;text-align:center;">
+    <div id="loading_rekomendasisinkrobarang_tab_image">
+        <img src="~/Content/Images/spinner.gif" style="width:100px;"/>
     </div>
 </div>
 <input id="txt_last_page_master" type="hidden" class="form-control" value="@ViewData["LastPage"]">
@@ -147,11 +147,11 @@
                     type: 'GET',
                     cache: false,
                     beforeSend: function () {
-                        $('#loading_uploadbarang_tab').show();
+                        $('#loading_rekomendasisinkrobarang_tab').show();
                     },
                     success: function (response) {
                         $('#form-rekomendasi').html(response);
-                        $('#loading_uploadbarang_tab').hide();
+                        $('#loading_rekomendasisinkrobarang_tab').hide();
                     }
                 });
             }
