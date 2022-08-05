@@ -2856,10 +2856,10 @@
                                             else {
                                                 //textbox
                                                 if (AMANDATORY == "1") {
-                                                    fieldAVALUE += '<div class="col-md-4 form-group"><input type="text" data-val="true" data-valid-toggle-required="1" required="required" data-val-required="This field is required."  class="form-control" data-val-length-max="250" id="' + fieldAVALUE_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (i + 1) + '" value="' + adaValue + '" maxlength="250" data-val-length="The field must be a string with a maximum length of 250."></div>';
+                                                    fieldAVALUE += '<div class="col-md-4 form-group"><input type="text" data-val="true" data-valid-toggle-required="1" required="required" data-val-required="This field is required."  class="form-control" data-val-length-max="20" id="' + fieldAVALUE_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (i + 1) + '" value="' + adaValue + '" maxlength="20" data-val-length="The field must be a string with a maximum length of 20."></div>';
                                                 }
                                                 else {
-                                                    fieldAVALUE += '<div class="col-md-4"><input type="text" data-val="true" data-val-length-max="250"  class="form-control" id="' + fieldAVALUE_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (i + 1) + '" value="' + adaValue + '" maxlength="250" data-val-length="The field must be a string with a maximum length of 250."></div>';
+                                                    fieldAVALUE += '<div class="col-md-4"><input type="text" data-val="true" data-val-length-max="20"  class="form-control" id="' + fieldAVALUE_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (i + 1) + '" value="' + adaValue + '" maxlength="20" data-val-length="The field must be a string with a maximum length of 20."></div>';
 
                                                 }
                                             }
@@ -7102,6 +7102,7 @@
         var errorElevenia= 0;
         var errorJDID = 0;
         var error82Cart = 0;
+        var errorTiktok = 0;
 
         function toggleRequiredDetailPerMarketplace(){
             errorShopee = 0;
@@ -7111,6 +7112,7 @@
             errorElevenia = 0;
             errorJDID = 0;
             error82Cart = 0;
+            errorTiktok = 0;
             $('.cbxTarget').each(function () {
                 var $this = $(this);
 
@@ -7177,6 +7179,9 @@
                                         break;
                                     case "20":
                                         error82Cart = 1;
+                                        break;
+                                    case "2021":
+                                        errorTiktok = 1;
                                         break;
                                 }
                             }

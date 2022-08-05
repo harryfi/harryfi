@@ -901,6 +901,7 @@
                                                     <h5>- Resolusi maximal berdimensi 2000 x 2000</h5>
                                                     <h5>- Ukuran maximal 4 MB</h5>
                                                     <h5>- * Khusus Blibli background harus putih</h5>
+                                                    <h5>- * Khusus Tiktok minimal 3 gambar</h5>
                                                 </div>
                                                 @*}*@
                                             </div>
@@ -2708,7 +2709,7 @@
                                                                                             string ValueNamaBrgMP = HttpUtility.HtmlDecode(Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.NAMA_BARANG_MP);
                                                                                             string nameNamaBrgMP = "ListHargaJualPermarket[" + i + "].NAMA_BARANG_MP";
                                                                                         }
-                                                                                        <input class="form-control namamp" type="text" id="@idNamaBrgMP" name="@nameNamaBrgMP" value="@ValueNamaBrgMP" maxlength="70" />
+                                                                                        <input class="form-control namamp" type="text" id="@idNamaBrgMP" name="@nameNamaBrgMP" value="@ValueNamaBrgMP" minlength="25" /> @*maxlength="70"*@
                                                                                     </div>
                                                                                 </div>
                                                                                 <div class="row">
