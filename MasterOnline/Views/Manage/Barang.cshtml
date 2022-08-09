@@ -3051,9 +3051,9 @@
                 });
         }
         function getAttributeOptionTiktok(ACODE, listMarketRecNum, selectID, fieldAVALUE_ID, adaValue, ATYPE, optAttributes) {
-           
+
             var listAttributeOpt = [];
-                    
+
                         $.each(optAttributes.filter(p => p.ACODE == ACODE),
                             function (i, item) {
                                 listAttributeOpt[i] = {
@@ -3061,7 +3061,7 @@
                                     text: item.OPTION_NAME
                                 };
                             });
-                    
+
                     //if (ATYPE == "DEFINING_ATTRIBUTE") {
             if (ATYPE.includes("CUSTOM")) {
                         if (ATYPE.includes("MULTI")) {
@@ -3311,13 +3311,13 @@
             var fieldCategoryCode = '#ListHargaJualPermarket_' + i + '__CATEGORY_CODE';
             var fieldCategoryName = '#ListHargaJualPermarket_' + i + '__CATEGORY_NAME';
             var msg = "Refresh untuk Memperbarui Data Kategori dan Attribute?";
-            
+
             if (confirm(msg)) {
                 $('#' + divIDpertama).html('');
                 $('#' + divIDselanjutnya).html('');
                 $('#' + divIDattribute).html('');
                 $('#attribute_tiktok2_' + idmrkt).html('');
-               
+
                     $(fieldCategoryCode).val('');
                     $(fieldCategoryName).val('');
                 $('#loading_attribute_' + idmrkt).show();
@@ -6496,7 +6496,7 @@
                                 $('#Brand' + i + 'tiktok').val('');
                                 $('#TIKTOK_WAREHOUSEID' + i + 'Box').val('');
                                 $('#ListHargaJualPermarket_' + i + '__AVALUE_32').val('');
-                                
+
                             }
                             i = i + 1;
                         };
@@ -7066,6 +7066,53 @@
             }
             //end add by nurul 28/8/2020
 
+            $('.cbxTarget').each(function () {
+                var $this = $(this);
+                var data_ar_recnum = $this.attr("data-ar-recnum");
+
+                if($this.val() == "False" || $this.val() == "false" || $this.val() == false) {
+			        var listMarket = @Html.Raw(Json.Encode(Model.ListMarket));
+                    for (var i = 0; i < listMarket.length; i++) {
+                        if (listMarket[i].RecNum == data_ar_recnum) {
+                            if (listMarket[i].NAMA == "2021") {
+                                RemoveError($('#ListHargaJualPermarket_' + i + '__NAMA_BARANG_MP'), "", "text-danger.span-error");
+                            }
+                        }
+			        }
+		        }
+		        else {
+			        var listMarket = @Html.Raw(Json.Encode(Model.ListMarket));
+			        for (var i = 0; i < listMarket.length; i++) {
+				        if (listMarket[i].RecNum == data_ar_recnum) {
+					        var IsValid = true;
+
+                            if (listMarket[i].NAMA == "2021") {
+                                debugger;
+                                var namabrglength = $('#ListHargaJualPermarket_' + i + '__NAMA_BARANG_MP').val().length;
+                                if (namabrglength < 25) {
+                                    addError($('#ListHargaJualPermarket_' + i + '__NAMA_BARANG_MP'), 'Nama barang Tiktok minimal 25 karakter.');
+                                    IsValid = false;
+                                }
+                                else {
+                                    //IsValid = true;
+                                    RemoveError($('#ListHargaJualPermarket_' + i + '__NAMA_BARANG_MP'), "", "text-danger.span-error");
+                                }
+                            }
+
+                            if (!IsValid) {
+                                errorTiktok = 1;
+                            }
+				        }
+                    }
+                    
+		        }
+            });
+
+            if (errorTiktok == 1 && belumSetFocus) {
+                belumSetFocus = false;
+                $('#tiktok_detail_tab_focus').click();
+            }
+
             return ret;
         }
         function addErrorCenter(obj, msg) {
@@ -7117,77 +7164,77 @@
                 var $this = $(this);
 
                 if($this.val() == "False" || $this.val() == "false" || $this.val() == false){
-                    var data_ar_recnum = $this.attr("data-ar-recnum");
-                    $('#div_detail_' + data_ar_recnum + ' :input[data-valid-toggle-required="1"]').removeAttr('required');
-                }
-                else {
-                    var data_ar_recnum = $this.attr("data-ar-recnum");
-                    $('#div_detail_' + data_ar_recnum + ' :input[data-valid-toggle-required="1"]').attr('required', 'required');
+			        var data_ar_recnum = $this.attr("data-ar-recnum");
+			        $('#div_detail_' + data_ar_recnum + ' :input[data-valid-toggle-required="1"]').removeAttr('required');
+		        }
+		        else {
+			        var data_ar_recnum = $this.attr("data-ar-recnum");
+			        $('#div_detail_' + data_ar_recnum + ' :input[data-valid-toggle-required="1"]').attr('required', 'required');
 
-                    var listMarket = @Html.Raw(Json.Encode(Model.ListMarket));
-                    for (var i = 0; i < listMarket.length; i++) {
-                        if (listMarket[i].RecNum == data_ar_recnum) {
-                            var IsValid = true;
+			        var listMarket = @Html.Raw(Json.Encode(Model.ListMarket));
+			        for (var i = 0; i < listMarket.length; i++) {
+				        if (listMarket[i].RecNum == data_ar_recnum) {
+					        var IsValid = true;
 
-                            if ($('#ListHargaJualPermarket_' + i + '__CATEGORY_CODE').val() == "") {
-                                IsValid = false;
+					        if ($('#ListHargaJualPermarket_' + i + '__CATEGORY_CODE').val() == "") {
+						        IsValid = false;
+					        }
+
+					        $('#div_detail_' + data_ar_recnum + ' :input[data-valid-toggle-required="1"]').each(function () {
+						        var $this = $(this);
+						        var $value = $this.val();
+						        if (!Array.isArray($value)) {
+							        if ($value == '' || isEmptyOrSpaces($value)) {
+								        IsValid = false;
+							        }
+						        }
+						        else {
+							        if ($value.length > 0) {
+								        //$value.forEach(function () {
+								        //    var $value2 = $(this);
+								        //    //var $value2 = $this2.val();
+								        //    if ($value2 == '' || isEmptyOrSpaces($value2)) {
+								        //        IsValid = false;
+								        //    }
+								        //});
+							        }
+							        else {
+								        IsValid = false;
+							        }
+						        }
+					        });
+
+					        if (!IsValid) {
+						        switch (listMarket[i].NAMA) {
+							        case "17":
+								        errorShopee = 1;
+								        break;
+							        case "15":
+								        errorTokped = 1;
+								        break;
+							        case "7":
+								        errorLazada = 1;
+								        break;
+							        case "16":
+								        errorBlibli = 1;
+								        break;
+							        case "9":
+								        errorElevenia = 1;
+								        break;
+							        case "19":
+								        errorJDID = 1;
+								        break;
+							        case "20":
+								        error82Cart = 1;
+								        break;
+							        case "2021":
+								        errorTiktok = 1;
+								        break;
+						        }
                             }
-
-                            $('#div_detail_' + data_ar_recnum + ' :input[data-valid-toggle-required="1"]').each(function () {
-                                var $this = $(this);
-                                var $value = $this.val();
-                                if (!Array.isArray($value)) {
-                                    if ($value == '' || isEmptyOrSpaces($value)) {
-                                        IsValid = false;
-                                    }
-                                }
-                                else {
-                                    if ($value.length > 0) {
-                                        //$value.forEach(function () {
-                                        //    var $value2 = $(this);
-                                        //    //var $value2 = $this2.val();
-                                        //    if ($value2 == '' || isEmptyOrSpaces($value2)) {
-                                        //        IsValid = false;
-                                        //    }
-                                        //});
-                                    }
-                                    else {
-                                        IsValid = false;
-                                    }
-                                }
-                            });
-
-                            if (!IsValid) {
-                                switch (listMarket[i].NAMA) {
-                                    case "17":
-                                        errorShopee = 1;
-                                        break;
-                                    case "15":
-                                        errorTokped = 1;
-                                        break;
-                                    case "7":
-                                        errorLazada = 1;
-                                        break;
-                                    case "16":
-                                        errorBlibli = 1;
-                                        break;
-                                    case "9":
-                                        errorElevenia = 1;
-                                        break;
-                                    case "19":
-                                        errorJDID = 1;
-                                        break;
-                                    case "20":
-                                        error82Cart = 1;
-                                        break;
-                                    case "2021":
-                                        errorTiktok = 1;
-                                        break;
-                                }
-                            }
-                        }
-                    }
-                }
+				        }
+			        }
+		        }
             });
         }
         function simpanBarang1(btnClicked) {
